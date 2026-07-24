@@ -19,9 +19,12 @@ const text = {
     next: "SETERUSNYA",
     finish: "SELESAI KP01",
     continueKT: "TERUSKAN KE KT01",
-    correct: "Betul! Jawapan anda tepat.",
-    incorrect: "Belum tepat. Cuba semula.",
-    completeActivity: "Selesaikan aktiviti terlebih dahulu.",
+    correct:
+      "Jawapan betul! Tindakan pertama ialah mengumpulkan dan menyemak maklumat server.",
+    incorrect:
+      "Belum tepat. Cuba semula. Petunjuk: semak maklumat server dahulu.",
+    completeActivity:
+      "Selesaikan aktiviti terlebih dahulu.",
     helper:
       "Klik objek, baca teks ringkas dan selesaikan aktiviti. Anda tidak perlu menghafal semuanya sekaligus."
   },
@@ -37,9 +40,12 @@ const text = {
     next: "NEXT",
     finish: "COMPLETE KP01",
     continueKT: "CONTINUE TO KT01",
-    correct: "Correct! Your answer is accurate.",
-    incorrect: "Not quite. Try again.",
-    completeActivity: "Complete the activity first.",
+    correct:
+      "Correct! The first action is to collect and verify the server information.",
+    incorrect:
+      "Not correct yet. Try again. Hint: check the server information first.",
+    completeActivity:
+      "Complete the activity first.",
     helper:
       "Click the objects, read the short notes and complete the activity. You do not need to memorise everything at once."
   }
@@ -57,6 +63,7 @@ const slides = [
         lead:
           "Anda dilantik sebagai Juruteknik Pelatih. Tugas pertama anda ialah mengenal pasti maklumat penting sebelum kerja penyelenggaraan server dimulakan."
       },
+
       en: {
         badge: "FIRST MISSION",
         title: "Identify Server Information",
@@ -74,6 +81,7 @@ const slides = [
         body:
           "Sebuah server di bilik ICT mengalami masalah. Sebelum membuka casing atau menukar komponen, anda mesti mengumpulkan maklumat server terlebih dahulu."
       },
+
       en: {
         title: "Task Situation",
         body:
@@ -90,6 +98,7 @@ const slides = [
         lead:
           "Server ialah komputer yang menyediakan perkhidmatan, data atau sumber kepada komputer lain dalam rangkaian."
       },
+
       en: {
         title: "What Is a Server?",
         lead:
@@ -106,6 +115,7 @@ const slides = [
         lead:
           "Sebelum penyelenggaraan dilakukan, juruteknik perlu mengenal pasti beberapa maklumat asas."
       },
+
       en: {
         title: "Important Server Information",
         lead:
@@ -122,6 +132,7 @@ const slides = [
         lead:
           "Klik semua komponen untuk mengetahui fungsi ringkasnya."
       },
+
       en: {
         title: "Explore Server Components",
         lead:
@@ -138,6 +149,7 @@ const slides = [
         lead:
           "Arahan kerja membantu juruteknik memahami masalah, lokasi, model server dan tindakan yang perlu dilakukan."
       },
+
       en: {
         title: "Information in a Job Order",
         lead:
@@ -160,6 +172,7 @@ const slides = [
           "Menutup laporan penyelenggaraan"
         ]
       },
+
       en: {
         title: "Mini Activity",
         question:
@@ -171,6 +184,7 @@ const slides = [
           "Close the maintenance report"
         ]
       },
+
       correct: 1
     }
   },
@@ -187,6 +201,7 @@ const slides = [
           "Model, nombor siri, sistem operasi dan konfigurasi perlu direkodkan."
         ]
       },
+
       en: {
         title: "KP01 Summary",
         points: [
@@ -207,6 +222,7 @@ const slides = [
         lead:
           "Anda telah mengenal pasti maklumat asas server. Seterusnya, jawab Kertas Tugasan KT01."
       },
+
       en: {
         title: "KP01 Mission Completed",
         lead:
@@ -222,6 +238,7 @@ function getContent(slide) {
 
 function render() {
   const slide = slides[currentSlide];
+
   const progress = Math.round(
     ((currentSlide + 1) / slides.length) * 100
   );
@@ -230,16 +247,25 @@ function render() {
     <div class="kp-shell">
 
       <header class="kp-header">
+
         <div class="kp-brand">
-          <div class="kp-brand-icon">🖥️</div>
+          <div class="kp-brand-icon">
+            🖥️
+          </div>
 
           <div>
-            <h1>${t("module")} · ${t("title")}</h1>
-            <small>C05 – SERVER MAINTENANCE</small>
+            <h1>
+              ${t("module")} · ${t("title")}
+            </h1>
+
+            <small>
+              C05 – SERVER MAINTENANCE
+            </small>
           </div>
         </div>
 
         <div class="kp-header-tools">
+
           <button onclick="goDashboard()">
             ← ${t("dashboard")}
           </button>
@@ -251,10 +277,12 @@ function render() {
           <button onclick="toggleFullscreen()">
             ⛶ ${t("fullscreen")}
           </button>
+
         </div>
       </header>
 
       <section class="kp-progress-wrap">
+
         <div class="kp-progress-info">
           <span>${t("progress")}</span>
           <strong>${progress}%</strong>
@@ -263,22 +291,30 @@ function render() {
         <div class="kp-progress">
           <i style="width:${progress}%"></i>
         </div>
+
       </section>
 
       <section class="kp-stage">
         ${renderSlide(slide)}
       </section>
 
-      ${renderNavigation(slide)}
+      ${renderNavigation()}
 
     </div>
 
     <div class="byte-helper">
-      <button onclick="toggleHelper()">🤖</button>
 
-      <div class="byte-tip" id="byteTip">
+      <button onclick="toggleHelper()">
+        🤖
+      </button>
+
+      <div
+        class="byte-tip"
+        id="byteTip"
+      >
         ${t("helper")}
       </div>
+
     </div>
   `;
 }
@@ -290,27 +326,53 @@ function renderSlide(slide) {
     case "intro":
       return `
         <article class="kp-slide kp-hero">
-          <div class="kp-badge">${c.badge}</div>
-          <div class="big-icon">🖥️</div>
-          <h2>${c.title}</h2>
-          <p>${c.lead}</p>
+
+          <div class="kp-badge">
+            ${c.badge}
+          </div>
+
+          <div class="big-icon">
+            🖥️
+          </div>
+
+          <h2>
+            ${c.title}
+          </h2>
+
+          <p>
+            ${c.lead}
+          </p>
+
         </article>
       `;
 
     case "story":
       return `
         <article class="kp-slide">
-          <h2 class="kp-title">📖 ${c.title}</h2>
+
+          <h2 class="kp-title">
+            📖 ${c.title}
+          </h2>
 
           <div class="story-box">
-            <strong>🚨 Mission Briefing</strong>
-            <p>${c.body}</p>
+
+            <strong>
+              🚨 Mission Briefing
+            </strong>
+
+            <p>
+              ${c.body}
+            </p>
+
           </div>
 
           <div class="kp-card-grid">
+
             ${card(
               "🔍",
-              lang === "ms" ? "Kenal Pasti" : "Identify",
+              lang === "ms"
+                ? "Kenal Pasti"
+                : "Identify",
               lang === "ms"
                 ? "Semak maklumat sebelum menyentuh komponen."
                 : "Check information before touching components."
@@ -318,7 +380,9 @@ function renderSlide(slide) {
 
             ${card(
               "📝",
-              lang === "ms" ? "Rekod" : "Record",
+              lang === "ms"
+                ? "Rekod"
+                : "Record",
               lang === "ms"
                 ? "Catat model, nombor siri dan masalah."
                 : "Record the model, serial number and problem."
@@ -326,25 +390,38 @@ function renderSlide(slide) {
 
             ${card(
               "🛡️",
-              lang === "ms" ? "Selamat" : "Safe",
+              lang === "ms"
+                ? "Selamat"
+                : "Safe",
               lang === "ms"
                 ? "Elakkan tindakan tanpa maklumat lengkap."
                 : "Avoid acting without complete information."
             )}
+
           </div>
+
         </article>
       `;
 
     case "definition":
       return `
         <article class="kp-slide">
-          <h2 class="kp-title">🖥️ ${c.title}</h2>
-          <p class="kp-lead">${c.lead}</p>
+
+          <h2 class="kp-title">
+            🖥️ ${c.title}
+          </h2>
+
+          <p class="kp-lead">
+            ${c.lead}
+          </p>
 
           <div class="kp-card-grid">
+
             ${card(
               "📁",
-              lang === "ms" ? "Fail" : "Files",
+              lang === "ms"
+                ? "Fail"
+                : "Files",
               lang === "ms"
                 ? "Menyimpan dan berkongsi data."
                 : "Stores and shares data."
@@ -352,7 +429,9 @@ function renderSlide(slide) {
 
             ${card(
               "🌐",
-              lang === "ms" ? "Rangkaian" : "Network",
+              lang === "ms"
+                ? "Rangkaian"
+                : "Network",
               lang === "ms"
                 ? "Memberi perkhidmatan kepada client."
                 : "Provides services to clients."
@@ -360,25 +439,38 @@ function renderSlide(slide) {
 
             ${card(
               "🔐",
-              lang === "ms" ? "Keselamatan" : "Security",
+              lang === "ms"
+                ? "Keselamatan"
+                : "Security",
               lang === "ms"
                 ? "Mengawal pengguna dan akses."
                 : "Controls users and access."
             )}
+
           </div>
+
         </article>
       `;
 
     case "information":
       return `
         <article class="kp-slide">
-          <h2 class="kp-title">📋 ${c.title}</h2>
-          <p class="kp-lead">${c.lead}</p>
+
+          <h2 class="kp-title">
+            📋 ${c.title}
+          </h2>
+
+          <p class="kp-lead">
+            ${c.lead}
+          </p>
 
           <div class="kp-card-grid">
+
             ${card(
               "🏷️",
-              lang === "ms" ? "Jenama dan Model" : "Brand and Model",
+              lang === "ms"
+                ? "Jenama dan Model"
+                : "Brand and Model",
               lang === "ms"
                 ? "Contoh: Dell PowerEdge atau HP ProLiant."
                 : "Example: Dell PowerEdge or HP ProLiant."
@@ -386,7 +478,9 @@ function renderSlide(slide) {
 
             ${card(
               "🔢",
-              lang === "ms" ? "Nombor Siri" : "Serial Number",
+              lang === "ms"
+                ? "Nombor Siri"
+                : "Serial Number",
               lang === "ms"
                 ? "Pengenalan unik bagi setiap server."
                 : "A unique identifier for each server."
@@ -394,7 +488,9 @@ function renderSlide(slide) {
 
             ${card(
               "💿",
-              lang === "ms" ? "Sistem Operasi" : "Operating System",
+              lang === "ms"
+                ? "Sistem Operasi"
+                : "Operating System",
               lang === "ms"
                 ? "Contoh: Windows Server 2019."
                 : "Example: Windows Server 2019."
@@ -402,7 +498,9 @@ function renderSlide(slide) {
 
             ${card(
               "🧠",
-              lang === "ms" ? "RAM dan CPU" : "RAM and CPU",
+              lang === "ms"
+                ? "RAM dan CPU"
+                : "RAM and CPU",
               lang === "ms"
                 ? "Menentukan prestasi pemprosesan."
                 : "Determine processing performance."
@@ -410,7 +508,9 @@ function renderSlide(slide) {
 
             ${card(
               "💽",
-              lang === "ms" ? "Storan" : "Storage",
+              lang === "ms"
+                ? "Storan"
+                : "Storage",
               lang === "ms"
                 ? "Kapasiti dan status cakera."
                 : "Disk capacity and condition."
@@ -418,22 +518,33 @@ function renderSlide(slide) {
 
             ${card(
               "🌐",
-              lang === "ms" ? "Alamat IP" : "IP Address",
+              lang === "ms"
+                ? "Alamat IP"
+                : "IP Address",
               lang === "ms"
                 ? "Maklumat rangkaian server."
                 : "Server network information."
             )}
+
           </div>
+
         </article>
       `;
 
     case "explore":
       return `
         <article class="kp-slide">
-          <h2 class="kp-title">🧩 ${c.title}</h2>
-          <p class="kp-lead">${c.lead}</p>
+
+          <h2 class="kp-title">
+            🧩 ${c.title}
+          </h2>
+
+          <p class="kp-lead">
+            ${c.lead}
+          </p>
 
           <div class="server-diagram">
+
             ${serverPart(
               "cpu",
               "🧠",
@@ -455,7 +566,9 @@ function renderSlide(slide) {
             ${serverPart(
               "storage",
               "💽",
-              lang === "ms" ? "Storan" : "Storage",
+              lang === "ms"
+                ? "Storan"
+                : "Storage",
               lang === "ms"
                 ? "Menyimpan sistem dan fail."
                 : "Stores the system and files."
@@ -478,11 +591,14 @@ function renderSlide(slide) {
                 ? "Membekalkan kuasa."
                 : "Supplies electrical power."
             )}
+
           </div>
 
           <div
             class="feedback ${
-              exploredParts.size === 5 ? "show good" : ""
+              exploredParts.size === 5
+                ? "show good"
+                : ""
             }"
           >
             ${
@@ -491,19 +607,29 @@ function renderSlide(slide) {
                 : "Well done! All components have been explored."
             }
           </div>
+
         </article>
       `;
 
     case "jobOrder":
       return `
         <article class="kp-slide">
-          <h2 class="kp-title">📝 ${c.title}</h2>
-          <p class="kp-lead">${c.lead}</p>
+
+          <h2 class="kp-title">
+            📝 ${c.title}
+          </h2>
+
+          <p class="kp-lead">
+            ${c.lead}
+          </p>
 
           <div class="kp-card-grid">
+
             ${card(
               "📅",
-              lang === "ms" ? "Tarikh dan Masa" : "Date and Time",
+              lang === "ms"
+                ? "Tarikh dan Masa"
+                : "Date and Time",
               lang === "ms"
                 ? "Bila masalah dilaporkan."
                 : "When the problem was reported."
@@ -511,7 +637,9 @@ function renderSlide(slide) {
 
             ${card(
               "📍",
-              lang === "ms" ? "Lokasi" : "Location",
+              lang === "ms"
+                ? "Lokasi"
+                : "Location",
               lang === "ms"
                 ? "Tempat server dipasang."
                 : "Where the server is installed."
@@ -519,7 +647,9 @@ function renderSlide(slide) {
 
             ${card(
               "⚠️",
-              lang === "ms" ? "Aduan" : "Complaint",
+              lang === "ms"
+                ? "Aduan"
+                : "Complaint",
               lang === "ms"
                 ? "Masalah atau simptom yang berlaku."
                 : "The reported problem or symptom."
@@ -527,7 +657,9 @@ function renderSlide(slide) {
 
             ${card(
               "👤",
-              lang === "ms" ? "Pelapor" : "Reporter",
+              lang === "ms"
+                ? "Pelapor"
+                : "Reporter",
               lang === "ms"
                 ? "Nama pengguna atau pegawai."
                 : "Name of the user or officer."
@@ -535,7 +667,9 @@ function renderSlide(slide) {
 
             ${card(
               "🛠️",
-              lang === "ms" ? "Tindakan" : "Action",
+              lang === "ms"
+                ? "Tindakan"
+                : "Action",
               lang === "ms"
                 ? "Kerja yang perlu dilaksanakan."
                 : "Work that must be performed."
@@ -543,48 +677,70 @@ function renderSlide(slide) {
 
             ${card(
               "✅",
-              lang === "ms" ? "Pengesahan" : "Verification",
+              lang === "ms"
+                ? "Pengesahan"
+                : "Verification",
               lang === "ms"
                 ? "Semakan selepas penyelenggaraan."
                 : "Checking after maintenance."
             )}
+
           </div>
+
         </article>
       `;
 
     case "activity":
       return `
         <article class="kp-slide">
-          <h2 class="kp-title">🎮 ${c.title}</h2>
+
+          <h2 class="kp-title">
+            🎮 ${c.title}
+          </h2>
 
           <div class="activity-box">
+
             <div class="activity-question">
               ${c.question}
             </div>
 
             <div class="answer-grid">
+
               ${c.answers
                 .map(
                   (answer, index) => `
-                    <button onclick="checkAnswer(${index}, this)">
-                      ${String.fromCharCode(65 + index)}. ${answer}
+                    <button
+                      onclick="checkAnswer(${index}, this)"
+                    >
+                      ${String.fromCharCode(65 + index)}.
+                      ${answer}
                     </button>
                   `
                 )
                 .join("")}
+
             </div>
 
-            <div class="feedback" id="activityFeedback"></div>
+            <div
+              class="feedback"
+              id="activityFeedback"
+            ></div>
+
           </div>
+
         </article>
       `;
 
     case "summary":
       return `
         <article class="kp-slide">
-          <h2 class="kp-title">🧠 ${c.title}</h2>
+
+          <h2 class="kp-title">
+            🧠 ${c.title}
+          </h2>
 
           <div class="kp-card-grid">
+
             ${c.points
               .map(
                 (point, index) =>
@@ -595,34 +751,59 @@ function renderSlide(slide) {
                   )
               )
               .join("")}
+
           </div>
+
         </article>
       `;
 
     case "complete":
       return `
         <article class="kp-slide kp-summary">
-          <div class="trophy">🏆</div>
 
-          <h2>${c.title}</h2>
-          <p class="kp-lead">${c.lead}</p>
+          <div class="trophy">
+            🏆
+          </div>
+
+          <h2>
+            ${c.title}
+          </h2>
+
+          <p class="kp-lead">
+            ${c.lead}
+          </p>
 
           <div class="reward-box">
+
             <div>
               <span>XP</span>
               <b>+100</b>
             </div>
 
             <div>
-              <span>${lang === "ms" ? "Syiling" : "Coins"}</span>
+              <span>
+                ${
+                  lang === "ms"
+                    ? "Syiling"
+                    : "Coins"
+                }
+              </span>
               <b>+50</b>
             </div>
 
             <div>
-              <span>${lang === "ms" ? "Lencana" : "Badge"}</span>
+              <span>
+                ${
+                  lang === "ms"
+                    ? "Lencana"
+                    : "Badge"
+                }
+              </span>
               <b>🖥️</b>
             </div>
+
           </div>
+
         </article>
       `;
 
@@ -634,35 +815,76 @@ function renderSlide(slide) {
 function card(icon, title, body) {
   return `
     <article class="kp-card">
-      <div class="icon">${icon}</div>
-      <h3>${title}</h3>
-      <p>${body}</p>
+
+      <div class="icon">
+        ${icon}
+      </div>
+
+      <h3>
+        ${title}
+      </h3>
+
+      <p>
+        ${body}
+      </p>
+
     </article>
   `;
 }
 
-function serverPart(id, icon, title, description) {
+function serverPart(
+  id,
+  icon,
+  title,
+  description
+) {
   const active = exploredParts.has(id);
 
   return `
-    <article class="server-part ${active ? "active" : ""}">
-      <button onclick="explorePart('${id}')">
-        <span class="part-icon">${icon}</span>
-        <strong>${title}</strong>
+    <article
+      class="server-part ${
+        active ? "active" : ""
+      }"
+    >
+
+      <button
+        onclick="explorePart('${id}')"
+      >
+
+        <span class="part-icon">
+          ${icon}
+        </span>
+
+        <strong>
+          ${title}
+        </strong>
+
         <small>
-          ${active ? description : lang === "ms" ? "Klik untuk lihat" : "Click to view"}
+          ${
+            active
+              ? description
+              : lang === "ms"
+                ? "Klik untuk lihat"
+                : "Click to view"
+          }
         </small>
+
       </button>
+
     </article>
   `;
 }
 
-function renderNavigation(slide) {
-  const isFirst = currentSlide === 0;
-  const isLast = currentSlide === slides.length - 1;
+function renderNavigation() {
+  const isFirst =
+    currentSlide === 0;
+
+  const isLast =
+    currentSlide === slides.length - 1;
 
   return `
     <nav class="kp-navigation">
+
       <button
         class="btn-back"
         onclick="previousSlide()"
@@ -674,16 +896,29 @@ function renderNavigation(slide) {
       ${
         isLast
           ? `
-            <button class="btn-kt" onclick="continueToKT()">
+            <button
+              class="btn-kt"
+              onclick="continueToKT()"
+            >
               ${t("continueKT")} →
             </button>
           `
           : `
-            <button class="btn-next" onclick="nextSlide()">
-              ${currentSlide === slides.length - 2 ? t("finish") : t("next")} →
+            <button
+              class="btn-next"
+              onclick="nextSlide()"
+            >
+              ${
+                currentSlide ===
+                slides.length - 2
+                  ? t("finish")
+                  : t("next")
+              }
+              →
             </button>
           `
       }
+
     </nav>
   `;
 }
@@ -700,6 +935,7 @@ function nextSlide() {
         ? "Klik semua lima komponen terlebih dahulu."
         : "Click all five components first."
     );
+
     return;
   }
 
@@ -711,10 +947,17 @@ function nextSlide() {
     return;
   }
 
-  if (currentSlide < slides.length - 1) {
+  if (
+    currentSlide <
+    slides.length - 1
+  ) {
     currentSlide++;
     render();
-    window.scrollTo({ top: 0, behavior: "smooth" });
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
   }
 }
 
@@ -722,7 +965,11 @@ function previousSlide() {
   if (currentSlide > 0) {
     currentSlide--;
     render();
-    window.scrollTo({ top: 0, behavior: "smooth" });
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
   }
 }
 
@@ -736,31 +983,58 @@ function explorePart(id) {
   render();
 }
 
-function checkAnswer(index, button) {
-  const correct = slides[currentSlide].correct;
-  const feedback = document.getElementById(
-    "activityFeedback"
+function checkAnswer(
+  index,
+  button
+) {
+  const correctIndex = Number(
+    slides[currentSlide].correct
   );
 
+  const feedback =
+    document.getElementById(
+      "activityFeedback"
+    );
+
   document
-    .querySelectorAll(".answer-grid button")
+    .querySelectorAll(
+      ".answer-grid button"
+    )
     .forEach((item) => {
-      item.classList.remove("correct", "incorrect");
+      item.classList.remove(
+        "correct",
+        "incorrect"
+      );
     });
 
-  if (index === correct) {
-    button.classList.add("correct");
-    feedback.className = "feedback show good";
-    feedback.textContent = t("correct");
+  if (index === correctIndex) {
+    button.classList.add(
+      "correct"
+    );
+
+    feedback.className =
+      "feedback show good";
+
+    feedback.textContent =
+      t("correct");
+
     activityCompleted = true;
 
     if (state.audio) {
       playBeep(880);
     }
   } else {
-    button.classList.add("incorrect");
-    feedback.className = "feedback show bad";
-    feedback.textContent = t("incorrect");
+    button.classList.add(
+      "incorrect"
+    );
+
+    feedback.className =
+      "feedback show bad";
+
+    feedback.textContent =
+      t("incorrect");
+
+    activityCompleted = false;
 
     if (state.audio) {
       playBeep(220);
@@ -772,14 +1046,26 @@ function completeKP01() {
   const alreadyCompleted =
     state.completedKP.includes(1);
 
-  window.C05Storage.completeKP(state, 1);
+  window.C05Storage.completeKP(
+    state,
+    1
+  );
 
   if (!alreadyCompleted) {
-    state.xp = Number(state.xp || 0) + 100;
-    state.coins = Number(state.coins || 0) + 50;
+    state.xp =
+      Number(state.xp || 0) + 100;
 
-    if (!state.badges.includes("kp01-complete")) {
-      state.badges.push("kp01-complete");
+    state.coins =
+      Number(state.coins || 0) + 50;
+
+    if (
+      !state.badges.includes(
+        "kp01-complete"
+      )
+    ) {
+      state.badges.push(
+        "kp01-complete"
+      );
     }
   }
 
@@ -788,23 +1074,32 @@ function completeKP01() {
 
 function continueToKT() {
   completeKP01();
-  window.location.href = "../kt/kt01.html";
+
+  window.location.href =
+    "../kt/kt01.html";
 }
 
 function goDashboard() {
-  window.location.href = "../index.html";
+  window.location.href =
+    "../index.html";
 }
 
 function toggleAudio() {
   state.audio = !state.audio;
+
   window.C05Storage.save(state);
 
-  alert(state.audio ? "Audio ON" : "Audio OFF");
+  alert(
+    state.audio
+      ? "Audio ON"
+      : "Audio OFF"
+  );
 }
 
 function toggleFullscreen() {
   if (!document.fullscreenElement) {
-    document.documentElement.requestFullscreen?.();
+    document.documentElement
+      .requestFullscreen?.();
   } else {
     document.exitFullscreen?.();
   }
@@ -822,11 +1117,18 @@ function playBeep(frequency) {
       window.AudioContext ||
       window.webkitAudioContext;
 
-    const context = new AudioContext();
-    const oscillator = context.createOscillator();
-    const gain = context.createGain();
+    const context =
+      new AudioContext();
 
-    oscillator.frequency.value = frequency;
+    const oscillator =
+      context.createOscillator();
+
+    const gain =
+      context.createGain();
+
+    oscillator.frequency.value =
+      frequency;
+
     oscillator.type = "sine";
 
     gain.gain.setValueAtTime(
@@ -840,27 +1142,53 @@ function playBeep(frequency) {
     );
 
     oscillator.connect(gain);
-    gain.connect(context.destination);
+    gain.connect(
+      context.destination
+    );
 
     oscillator.start();
-    oscillator.stop(context.currentTime + 0.18);
+
+    oscillator.stop(
+      context.currentTime + 0.18
+    );
   } catch (error) {
-    console.warn("Audio tidak dapat dimainkan.", error);
+    console.warn(
+      "Audio tidak dapat dimainkan.",
+      error
+    );
   }
 }
 
-window.nextSlide = nextSlide;
-window.previousSlide = previousSlide;
-window.explorePart = explorePart;
-window.checkAnswer = checkAnswer;
-window.continueToKT = continueToKT;
-window.goDashboard = goDashboard;
-window.toggleAudio = toggleAudio;
-window.toggleFullscreen = toggleFullscreen;
-window.toggleHelper = toggleHelper;
+window.nextSlide =
+  nextSlide;
+
+window.previousSlide =
+  previousSlide;
+
+window.explorePart =
+  explorePart;
+
+window.checkAnswer =
+  checkAnswer;
+
+window.continueToKT =
+  continueToKT;
+
+window.goDashboard =
+  goDashboard;
+
+window.toggleAudio =
+  toggleAudio;
+
+window.toggleFullscreen =
+  toggleFullscreen;
+
+window.toggleHelper =
+  toggleHelper;
 
 if (!state.student) {
-  window.location.href = "../index.html";
+  window.location.href =
+    "../index.html";
 } else {
   render();
 }
