@@ -3,7 +3,7 @@ const kpApp = document.getElementById("kpApp");
 let state = window.C05Storage.load();
 let currentSlide = 0;
 let activityCompleted = false;
-let exploredParts = new Set();
+const exploredParts = new Set();
 
 const lang = state.lang || "ms";
 
@@ -22,11 +22,11 @@ const text = {
     correct:
       "Jawapan betul! Tindakan pertama ialah mengumpulkan dan menyemak maklumat server.",
     incorrect:
-      "Belum tepat. Cuba semula. Petunjuk: semak maklumat server dahulu.",
+      "Belum tepat. Jawapan yang betul ialah B: Mengumpulkan dan menyemak maklumat server.",
     completeActivity:
       "Selesaikan aktiviti terlebih dahulu.",
     helper:
-      "Klik objek, baca teks ringkas dan selesaikan aktiviti. Anda tidak perlu menghafal semuanya sekaligus."
+      "Klik objek, baca penerangan ringkas dan selesaikan aktiviti sebelum meneruskan."
   },
 
   en: {
@@ -43,11 +43,11 @@ const text = {
     correct:
       "Correct! The first action is to collect and verify the server information.",
     incorrect:
-      "Not correct yet. Try again. Hint: check the server information first.",
+      "Not correct. The correct answer is B: Collect and verify the server information.",
     completeActivity:
       "Complete the activity first.",
     helper:
-      "Click the objects, read the short notes and complete the activity. You do not need to memorise everything at once."
+      "Click the objects, read the short explanations and complete the activity before continuing."
   }
 };
 
@@ -63,7 +63,6 @@ const slides = [
         lead:
           "Anda dilantik sebagai Juruteknik Pelatih. Tugas pertama anda ialah mengenal pasti maklumat penting sebelum kerja penyelenggaraan server dimulakan."
       },
-
       en: {
         badge: "FIRST MISSION",
         title: "Identify Server Information",
@@ -81,7 +80,6 @@ const slides = [
         body:
           "Sebuah server di bilik ICT mengalami masalah. Sebelum membuka casing atau menukar komponen, anda mesti mengumpulkan maklumat server terlebih dahulu."
       },
-
       en: {
         title: "Task Situation",
         body:
@@ -98,7 +96,6 @@ const slides = [
         lead:
           "Server ialah komputer yang menyediakan perkhidmatan, data atau sumber kepada komputer lain dalam rangkaian."
       },
-
       en: {
         title: "What Is a Server?",
         lead:
@@ -115,7 +112,6 @@ const slides = [
         lead:
           "Sebelum penyelenggaraan dilakukan, juruteknik perlu mengenal pasti beberapa maklumat asas."
       },
-
       en: {
         title: "Important Server Information",
         lead:
@@ -130,13 +126,12 @@ const slides = [
       ms: {
         title: "Klik Komponen Server",
         lead:
-          "Klik semua komponen untuk mengetahui fungsi ringkasnya."
+          "Klik semua lima komponen untuk mengetahui fungsi ringkasnya."
       },
-
       en: {
         title: "Explore Server Components",
         lead:
-          "Click every component to learn its basic function."
+          "Click all five components to learn their basic functions."
       }
     }
   },
@@ -149,7 +144,6 @@ const slides = [
         lead:
           "Arahan kerja membantu juruteknik memahami masalah, lokasi, model server dan tindakan yang perlu dilakukan."
       },
-
       en: {
         title: "Information in a Job Order",
         lead:
@@ -160,6 +154,8 @@ const slides = [
 
   {
     type: "activity",
+    correct: 1,
+
     content: {
       ms: {
         title: "Mini Aktiviti",
@@ -179,13 +175,11 @@ const slides = [
           "What is the first action before opening the server casing?",
         answers: [
           "Replace components immediately",
-          "Collect and verify server information",
+          "Collect and verify the server information",
           "Delete all data",
           "Close the maintenance report"
         ]
-      },
-
-      correct: 1
+      }
     }
   },
 
@@ -201,7 +195,6 @@ const slides = [
           "Model, nombor siri, sistem operasi dan konfigurasi perlu direkodkan."
         ]
       },
-
       en: {
         title: "KP01 Summary",
         points: [
@@ -222,7 +215,6 @@ const slides = [
         lead:
           "Anda telah mengenal pasti maklumat asas server. Seterusnya, jawab Kertas Tugasan KT01."
       },
-
       en: {
         title: "KP01 Mission Completed",
         lead:
@@ -247,8 +239,8 @@ function render() {
     <div class="kp-shell">
 
       <header class="kp-header">
-
         <div class="kp-brand">
+
           <div class="kp-brand-icon">
             🖥️
           </div>
@@ -262,6 +254,7 @@ function render() {
               C05 – SERVER MAINTENANCE
             </small>
           </div>
+
         </div>
 
         <div class="kp-header-tools">
@@ -335,13 +328,9 @@ function renderSlide(slide) {
             🖥️
           </div>
 
-          <h2>
-            ${c.title}
-          </h2>
+          <h2>${c.title}</h2>
 
-          <p>
-            ${c.lead}
-          </p>
+          <p>${c.lead}</p>
 
         </article>
       `;
@@ -360,9 +349,7 @@ function renderSlide(slide) {
               🚨 Mission Briefing
             </strong>
 
-            <p>
-              ${c.body}
-            </p>
+            <p>${c.body}</p>
 
           </div>
 
@@ -370,19 +357,15 @@ function renderSlide(slide) {
 
             ${card(
               "🔍",
-              lang === "ms"
-                ? "Kenal Pasti"
-                : "Identify",
+              lang === "ms" ? "Kenal Pasti" : "Identify",
               lang === "ms"
                 ? "Semak maklumat sebelum menyentuh komponen."
-                : "Check information before touching components."
+                : "Check the information before touching components."
             )}
 
             ${card(
               "📝",
-              lang === "ms"
-                ? "Rekod"
-                : "Record",
+              lang === "ms" ? "Rekod" : "Record",
               lang === "ms"
                 ? "Catat model, nombor siri dan masalah."
                 : "Record the model, serial number and problem."
@@ -390,9 +373,7 @@ function renderSlide(slide) {
 
             ${card(
               "🛡️",
-              lang === "ms"
-                ? "Selamat"
-                : "Safe",
+              lang === "ms" ? "Selamat" : "Safe",
               lang === "ms"
                 ? "Elakkan tindakan tanpa maklumat lengkap."
                 : "Avoid acting without complete information."
@@ -419,9 +400,7 @@ function renderSlide(slide) {
 
             ${card(
               "📁",
-              lang === "ms"
-                ? "Fail"
-                : "Files",
+              lang === "ms" ? "Fail" : "Files",
               lang === "ms"
                 ? "Menyimpan dan berkongsi data."
                 : "Stores and shares data."
@@ -429,9 +408,7 @@ function renderSlide(slide) {
 
             ${card(
               "🌐",
-              lang === "ms"
-                ? "Rangkaian"
-                : "Network",
+              lang === "ms" ? "Rangkaian" : "Network",
               lang === "ms"
                 ? "Memberi perkhidmatan kepada client."
                 : "Provides services to clients."
@@ -439,9 +416,7 @@ function renderSlide(slide) {
 
             ${card(
               "🔐",
-              lang === "ms"
-                ? "Keselamatan"
-                : "Security",
+              lang === "ms" ? "Keselamatan" : "Security",
               lang === "ms"
                 ? "Mengawal pengguna dan akses."
                 : "Controls users and access."
@@ -710,6 +685,7 @@ function renderSlide(slide) {
                 .map(
                   (answer, index) => `
                     <button
+                      type="button"
                       onclick="checkAnswer(${index}, this)"
                     >
                       ${String.fromCharCode(65 + index)}.
@@ -765,9 +741,7 @@ function renderSlide(slide) {
             🏆
           </div>
 
-          <h2>
-            ${c.title}
-          </h2>
+          <h2>${c.title}</h2>
 
           <p class="kp-lead">
             ${c.lead}
@@ -782,22 +756,14 @@ function renderSlide(slide) {
 
             <div>
               <span>
-                ${
-                  lang === "ms"
-                    ? "Syiling"
-                    : "Coins"
-                }
+                ${lang === "ms" ? "Syiling" : "Coins"}
               </span>
               <b>+50</b>
             </div>
 
             <div>
               <span>
-                ${
-                  lang === "ms"
-                    ? "Lencana"
-                    : "Badge"
-                }
+                ${lang === "ms" ? "Lencana" : "Badge"}
               </span>
               <b>🖥️</b>
             </div>
@@ -820,13 +786,9 @@ function card(icon, title, body) {
         ${icon}
       </div>
 
-      <h3>
-        ${title}
-      </h3>
+      <h3>${title}</h3>
 
-      <p>
-        ${body}
-      </p>
+      <p>${body}</p>
 
     </article>
   `;
@@ -848,6 +810,7 @@ function serverPart(
     >
 
       <button
+        type="button"
         onclick="explorePart('${id}')"
       >
 
@@ -855,9 +818,7 @@ function serverPart(
           ${icon}
         </span>
 
-        <strong>
-          ${title}
-        </strong>
+        <strong>${title}</strong>
 
         <small>
           ${
@@ -886,6 +847,7 @@ function renderNavigation() {
     <nav class="kp-navigation">
 
       <button
+        type="button"
         class="btn-back"
         onclick="previousSlide()"
         ${isFirst ? "disabled" : ""}
@@ -897,6 +859,7 @@ function renderNavigation() {
         isLast
           ? `
             <button
+              type="button"
               class="btn-kt"
               onclick="continueToKT()"
             >
@@ -905,6 +868,7 @@ function renderNavigation() {
           `
           : `
             <button
+              type="button"
               class="btn-next"
               onclick="nextSlide()"
             >
@@ -951,7 +915,7 @@ function nextSlide() {
     currentSlide <
     slides.length - 1
   ) {
-    currentSlide++;
+    currentSlide += 1;
     render();
 
     window.scrollTo({
@@ -963,7 +927,7 @@ function nextSlide() {
 
 function previousSlide() {
   if (currentSlide > 0) {
-    currentSlide--;
+    currentSlide -= 1;
     render();
 
     window.scrollTo({
@@ -983,14 +947,7 @@ function explorePart(id) {
   render();
 }
 
-function checkAnswer(
-  index,
-  button
-) {
-  const correctIndex = Number(
-    slides[currentSlide].correct
-  );
-
+function checkAnswer(index, button) {
   const feedback =
     document.getElementById(
       "activityFeedback"
@@ -1007,10 +964,9 @@ function checkAnswer(
       );
     });
 
-  if (index === correctIndex) {
-    button.classList.add(
-      "correct"
-    );
+  /* Jawapan B ialah index 1 */
+  if (Number(index) === 1) {
+    button.classList.add("correct");
 
     feedback.className =
       "feedback show good";
@@ -1024,9 +980,7 @@ function checkAnswer(
       playBeep(880);
     }
   } else {
-    button.classList.add(
-      "incorrect"
-    );
+    button.classList.add("incorrect");
 
     feedback.className =
       "feedback show bad";
@@ -1142,6 +1096,7 @@ function playBeep(frequency) {
     );
 
     oscillator.connect(gain);
+
     gain.connect(
       context.destination
     );
