@@ -1,9 +1,9 @@
 :root {
   --bg-dark: #020817;
   --bg-blue: #061a30;
-  --panel: rgba(10, 31, 55, 0.88);
+  --panel: rgba(10, 31, 55, 0.9);
   --panel-soft: rgba(255, 255, 255, 0.07);
-  --line: rgba(148, 163, 184, 0.2);
+  --line: rgba(148, 163, 184, 0.22);
 
   --text: #f8fafc;
   --muted: #cbd5e1;
@@ -92,9 +92,7 @@ button:disabled {
   min-height: 100vh;
 }
 
-/* =========================
-   LAYOUT UTAMA
-========================= */
+/* LAYOUT */
 
 .kp-shell {
   width: min(1500px, calc(100% - 28px));
@@ -102,9 +100,7 @@ button:disabled {
   padding: 16px 0 50px;
 }
 
-/* =========================
-   HEADER
-========================= */
+/* HEADER */
 
 .kp-header {
   position: sticky;
@@ -120,7 +116,7 @@ button:disabled {
   border: 1px solid var(--line);
   border-radius: 20px;
 
-  background: rgba(2, 12, 25, 0.9);
+  background: rgba(2, 12, 25, 0.92);
   box-shadow: var(--shadow);
   backdrop-filter: blur(22px);
 }
@@ -134,35 +130,42 @@ button:disabled {
 .kp-brand-icon {
   position: relative;
 
-  display: grid;
-  place-items: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-  width: 58px;
-  height: 58px;
+  width: 66px;
+  height: 66px;
+  flex: 0 0 66px;
 
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.32);
   border-radius: 18px;
-  background:
-    linear-gradient(
-      135deg,
-      var(--blue),
-      var(--purple)
-    );
 
-  font-size: 31px;
+  background: #ffffff;
+
   box-shadow:
-    0 12px 28px rgba(37, 99, 235, 0.4);
+    0 12px 28px rgba(37, 99, 235, 0.38);
 }
 
 .kp-brand-icon::after {
   content: "";
   position: absolute;
-  inset: -5px;
+  inset: -6px;
   z-index: -1;
 
-  border: 1px solid rgba(96, 165, 250, 0.45);
-  border-radius: 22px;
+  border: 1px solid rgba(96, 165, 250, 0.5);
+  border-radius: 23px;
 
   animation: pulseRing 2s infinite;
+}
+
+.college-logo {
+  width: 60px;
+  height: 60px;
+  display: block;
+  object-fit: contain;
+  border-radius: 13px;
 }
 
 @keyframes pulseRing {
@@ -173,7 +176,7 @@ button:disabled {
 
   70% {
     opacity: 0;
-    transform: scale(1.25);
+    transform: scale(1.22);
   }
 
   100% {
@@ -222,9 +225,7 @@ button:disabled {
   background: rgba(37, 99, 235, 0.18);
 }
 
-/* =========================
-   PROGRESS
-========================= */
+/* PROGRESS */
 
 .kp-progress-wrap {
   margin: 18px 0;
@@ -300,9 +301,7 @@ button:disabled {
   }
 }
 
-/* =========================
-   STAGE
-========================= */
+/* STAGE */
 
 .kp-stage {
   position: relative;
@@ -319,8 +318,8 @@ button:disabled {
   background:
     linear-gradient(
       145deg,
-      rgba(12, 37, 65, 0.92),
-      rgba(4, 18, 34, 0.92)
+      rgba(12, 37, 65, 0.94),
+      rgba(4, 18, 34, 0.94)
     );
 
   box-shadow: var(--shadow);
@@ -364,22 +363,16 @@ button:disabled {
 @keyframes slideEnter {
   from {
     opacity: 0;
-    transform:
-      translateY(24px)
-      scale(0.985);
+    transform: translateY(24px) scale(0.985);
   }
 
   to {
     opacity: 1;
-    transform:
-      translateY(0)
-      scale(1);
+    transform: translateY(0) scale(1);
   }
 }
 
-/* =========================
-   INTRO
-========================= */
+/* INTRO */
 
 .kp-hero {
   text-align: center;
@@ -456,9 +449,7 @@ button:disabled {
   line-height: 1.75;
 }
 
-/* =========================
-   TITLE & TEXT
-========================= */
+/* TITLE */
 
 .kp-title {
   margin: 0 0 14px;
@@ -476,9 +467,7 @@ button:disabled {
   line-height: 1.75;
 }
 
-/* =========================
-   STORY
-========================= */
+/* STORY */
 
 .story-box {
   position: relative;
@@ -498,16 +487,6 @@ button:disabled {
     );
 }
 
-.story-box::after {
-  content: "⚠";
-  position: absolute;
-  right: 18px;
-  bottom: -20px;
-
-  color: rgba(245, 158, 11, 0.11);
-  font-size: 120px;
-}
-
 .story-box strong {
   display: block;
   margin-bottom: 10px;
@@ -517,17 +496,12 @@ button:disabled {
 }
 
 .story-box p {
-  position: relative;
-  z-index: 1;
-
   margin: 0;
   font-size: 19px;
   line-height: 1.85;
 }
 
-/* =========================
-   CARDS
-========================= */
+/* CARDS */
 
 .kp-card-grid {
   display: grid;
@@ -559,23 +533,6 @@ button:disabled {
   transition: 0.25s ease;
 }
 
-.kp-card::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-
-  background:
-    linear-gradient(
-      120deg,
-      transparent,
-      rgba(96, 165, 250, 0.12),
-      transparent
-    );
-
-  transform: translateX(-120%);
-  transition: 0.5s ease;
-}
-
 .kp-card:hover {
   transform: translateY(-7px);
   border-color: rgba(96, 165, 250, 0.55);
@@ -584,38 +541,23 @@ button:disabled {
     0 16px 32px rgba(0, 0, 0, 0.24);
 }
 
-.kp-card:hover::before {
-  transform: translateX(120%);
-}
-
 .kp-card .icon {
-  position: relative;
-  z-index: 1;
-
   margin-bottom: 13px;
   font-size: 55px;
 }
 
 .kp-card h3 {
-  position: relative;
-  z-index: 1;
-
   margin: 0 0 9px;
   font-family: "Montserrat", sans-serif;
 }
 
 .kp-card p {
-  position: relative;
-  z-index: 1;
-
   margin: 0;
   color: var(--muted);
   line-height: 1.65;
 }
 
-/* =========================
-   SERVER COMPONENTS
-========================= */
+/* SERVER COMPONENTS */
 
 .server-diagram {
   display: grid;
@@ -695,19 +637,9 @@ button:disabled {
 
   box-shadow:
     0 0 24px rgba(22, 163, 74, 0.22);
-
-  animation: componentSuccess 0.4s ease;
 }
 
-@keyframes componentSuccess {
-  50% {
-    transform: scale(1.05);
-  }
-}
-
-/* =========================
-   ACTIVITY
-========================= */
+/* ACTIVITY */
 
 .activity-box {
   padding: 26px;
@@ -775,8 +707,6 @@ button:disabled {
 
   box-shadow:
     0 0 24px rgba(34, 197, 94, 0.25);
-
-  animation: correctAnswer 0.45s ease;
 }
 
 .answer-grid button.correct::after {
@@ -791,18 +721,9 @@ button:disabled {
   font-size: 25px;
 }
 
-@keyframes correctAnswer {
-  40% {
-    transform: scale(1.035);
-  }
-}
-
 .answer-grid button.incorrect {
   border-color: #ef4444;
-  background:
-    rgba(220, 38, 38, 0.2);
-
-  animation: wrongAnswer 0.35s ease;
+  background: rgba(220, 38, 38, 0.2);
 }
 
 .answer-grid button.incorrect::after {
@@ -817,23 +738,7 @@ button:disabled {
   font-size: 23px;
 }
 
-@keyframes wrongAnswer {
-  25% {
-    transform: translateX(-7px);
-  }
-
-  50% {
-    transform: translateX(7px);
-  }
-
-  75% {
-    transform: translateX(-4px);
-  }
-}
-
-/* =========================
-   FEEDBACK
-========================= */
+/* FEEDBACK */
 
 .feedback {
   display: none;
@@ -848,14 +753,6 @@ button:disabled {
 
 .feedback.show {
   display: block;
-  animation: feedbackEnter 0.35s ease;
-}
-
-@keyframes feedbackEnter {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
 }
 
 .feedback.good {
@@ -870,9 +767,7 @@ button:disabled {
   color: #fecaca;
 }
 
-/* =========================
-   COMPLETE / REWARD
-========================= */
+/* COMPLETE */
 
 .kp-summary {
   text-align: center;
@@ -891,9 +786,7 @@ button:disabled {
 
 @keyframes trophyBounce {
   50% {
-    transform:
-      translateY(-10px)
-      rotate(3deg);
+    transform: translateY(-10px) rotate(3deg);
   }
 }
 
@@ -944,9 +837,7 @@ button:disabled {
   font-size: 27px;
 }
 
-/* =========================
-   NAVIGATION
-========================= */
+/* NAVIGATION */
 
 .kp-navigation {
   display: flex;
@@ -988,15 +879,6 @@ button:disabled {
     );
 }
 
-.btn-finish {
-  background:
-    linear-gradient(
-      135deg,
-      var(--green),
-      #15803d
-    );
-}
-
 .btn-kt {
   background:
     linear-gradient(
@@ -1008,9 +890,7 @@ button:disabled {
   color: #111827 !important;
 }
 
-/* =========================
-   BYTE HELPER
-========================= */
+/* BYTE HELPER */
 
 .byte-helper {
   position: fixed;
@@ -1038,14 +918,6 @@ button:disabled {
 
   box-shadow:
     0 16px 36px rgba(0, 0, 0, 0.4);
-
-  animation: byteFloat 2.4s ease-in-out infinite;
-}
-
-@keyframes byteFloat {
-  50% {
-    transform: translateY(-8px);
-  }
 }
 
 .byte-tip {
@@ -1070,21 +942,9 @@ button:disabled {
 
 .byte-tip.show {
   display: block;
-  animation: helperEnter 0.3s ease;
 }
 
-@keyframes helperEnter {
-  from {
-    opacity: 0;
-    transform:
-      translateY(10px)
-      scale(0.97);
-  }
-}
-
-/* =========================
-   RESPONSIVE
-========================= */
+/* RESPONSIVE */
 
 @media (max-width: 1050px) {
   .kp-card-grid {
@@ -1156,9 +1016,14 @@ button:disabled {
 
 @media (max-width: 460px) {
   .kp-brand-icon {
-    width: 49px;
-    height: 49px;
-    font-size: 26px;
+    width: 58px;
+    height: 58px;
+    flex-basis: 58px;
+  }
+
+  .college-logo {
+    width: 52px;
+    height: 52px;
   }
 
   .server-diagram {
