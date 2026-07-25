@@ -48,7 +48,7 @@ select,textarea,input[type=number]{width:100%;padding:11px;border:1.5px solid #9
 textarea{resize:vertical;line-height:1.6}
 .assessor{margin-top:14px;padding:13px;background:#f8fafc;border:1px solid var(--soft);border-radius:9px}
 .assessor input{width:120px}
-.assessor input:disabled{background:#e2e8f0;color:#64748b;cursor:not-allowed}.assessor-lock{margin:18px 0;padding:16px;border:2px solid #f59e0b;border-radius:10px;background:#fffbeb;text-align:center}.assessor-lock button{margin-top:10px}
+.assessor input:disabled,.assessor input[readonly]{background:#e2e8f0;color:#64748b;cursor:not-allowed;pointer-events:none}.assessor-lock{margin:18px 0;padding:16px;border:2px solid #f59e0b;border-radius:10px;background:#fffbeb;text-align:center}.assessor-lock button{margin-top:10px}
 .submit,.actions{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:24px}
 .primary,.print,.danger{padding:13px 20px;border:0;border-radius:10px;color:#fff;font-weight:800}
 .primary{background:var(--blue)}
@@ -296,7 +296,7 @@ function render(){
               ></textarea>
 
               <div class="assessor">
-                <label><b>Markah Pegawai Penilai (0–${q.m})</b></label>
+                <label><b>🔒 Markah Pegawai Penilai (0–${q.m})</b></label>
                 <input
                   id="${q.id}_m"
                   type="number"
@@ -304,7 +304,7 @@ function render(){
                   max="${q.m}"
                   value="0"
                   oninput="limit(this,${q.m})"
-                  disabled
+                  disabled readonly tabindex="-1" aria-disabled="true"
                 >
               </div>
             </article>
@@ -349,7 +349,7 @@ function limit(el,max){
 function unlockAssessor(){
   if(prompt("Masukkan PIN Pegawai Penilai:")==="2019"){
     assessorUnlocked=true;
-    DATA.short.forEach(q=>document.getElementById(q.id+"_m").disabled=false);
+    DATA.short.forEach(q=>{const el=document.getElementById(q.id+"_m");el.disabled=false;el.readOnly=false;el.tabIndex=0;el.setAttribute("aria-disabled","false");el.style.pointerEvents="auto"});
     document.getElementById("assessorStatus").textContent="✅ Mod Pegawai Penilai aktif.";
     alert("Mod Pegawai Penilai berjaya dibuka.");
   }else alert("PIN tidak sah.");
