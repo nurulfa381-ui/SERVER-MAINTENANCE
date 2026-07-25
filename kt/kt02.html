@@ -64,9 +64,9 @@ const DATA={
  ],
  objective:[
   {id:"a1",q:"Apakah tujuan utama penyelenggaraan pencegahan server?",o:["Membaiki server selepas rosak","Mencegah kerosakan sebelum berlaku","Menghapuskan semua data","Menukar server setiap bulan"],a:1},
-  {id:"a2",q:"Antara berikut, yang manakah contoh penyelenggaraan pembetulan?",o:["Membersihkan habuk secara berkala","Memantau suhu server","Mengganti cakera keras yang rosak","Menyemak log setiap hari"],a:2},
-  {id:"a3",q:"Apakah yang perlu dilakukan sebelum kerja penyelenggaraan bermula?",o:["Memadam log server","Menyemak arahan kerja dan backup","Mencabut semua kabel tanpa rekod","Menukar alamat IP"],a:1},
-  {id:"a4",q:"Mengapakah rekod penyelenggaraan penting?",o:["Untuk menghias laporan","Untuk mengesan sejarah kerja dan perubahan","Untuk menambah ruang storan","Untuk menukar sistem operasi"],a:1}
+  {id:"a2",q:"Antara berikut, yang manakah contoh penyelenggaraan pembetulan?",o:["Mengganti cakera keras yang rosak","Memantau suhu server","Membersihkan habuk secara berkala","Menyemak log setiap hari"],a:0},
+  {id:"a3",q:"Apakah yang perlu dilakukan sebelum kerja penyelenggaraan bermula?",o:["Memadam log server","Mencabut semua kabel tanpa rekod","Menukar alamat IP","Menyemak arahan kerja dan backup"],a:3},
+  {id:"a4",q:"Mengapakah rekod penyelenggaraan penting?",o:["Untuk menghias laporan","Untuk menambah ruang storan","Untuk mengesan sejarah kerja dan perubahan","Untuk menukar sistem operasi"],a:2}
  ],
  matching:{
   items:[
@@ -128,16 +128,14 @@ function complete(){
 }
 function submitKT(){
  if(!complete()){alert("Sila jawab semua soalan sebelum menghantar.");return}
- if(!confirm("Pastikan markah Bahagian C telah dimasukkan oleh Pegawai Penilai. Teruskan?"))return;
  let a=0,b=0,c=0;
  DATA.objective.forEach(q=>{let s=document.querySelector(`input[name="${q.id}"]:checked`);if(Number(s.value)===q.a)a++});
  DATA.matching.items.forEach(x=>{if(document.getElementById(x[0]).value===x[2])b++});
  DATA.short.forEach(q=>c+=Math.max(0,Math.min(q.m,Number(document.getElementById(q.id+"_m").value)||0)));
  let total=a+b+c,pct=Math.round(total/DATA.totalMarks*100),ok=pct>=DATA.passMark;
- C05Storage.saveKTResult(state,2,pct);
- if(ok&&!state.badges.includes("kt02-competent")){state.badges.push("kt02-competent");state.xp=(state.xp||0)+150;state.coins=(state.coins||0)+75;C05Storage.save(state)}
  resultReady=true;
  let r=document.getElementById("result");r.classList.remove("hidden");r.innerHTML=`${header()}<section class="result"><h2 style="text-align:center">KEPUTUSAN KERTAS TUGASAN KT02</h2><div class="score ${ok?"ok":"no"}">${pct}%</div><div class="status ${ok?"ok":"no"}">${ok?"TERAMPIL":"BELUM TERAMPIL"}</div><table style="margin-top:20px"><tr><th>NAMA PELATIH</th><td>${esc(name)}</td></tr><tr><th>NO. KAD PENGENALAN</th><td>${esc(id)}</td></tr><tr><th>BAHAGIAN A</th><td>${a}/4</td></tr><tr><th>BAHAGIAN B</th><td>${b}/6</td></tr><tr><th>BAHAGIAN C</th><td>${c}/10</td></tr><tr><th>JUMLAH MARKAH</th><td>${total}/20</td></tr><tr><th>KEPUTUSAN</th><td><b>${ok?"TERAMPIL":"BELUM TERAMPIL"}</b></td></tr><tr><th>TARIKH</th><td>__________________________</td></tr></table><div class="sign"><div><b>NAMA PEGAWAI PENILAI</b><div class="line">Nama Pegawai Penilai</div></div><div><b>PENGESAHAN</b><div class="line">Tandatangan Pegawai Penilai</div></div></div></section><div class="actions"><button class="print" onclick="printKT()">🖨️ CETAK / SIMPAN PDF</button>${ok?'<button class="primary" onclick="location.href=\'../index.html\'">KEMBALI KE DASHBOARD</button>':'<button class="danger" onclick="location.reload()">ULANG KT02</button>'}</div>`;r.scrollIntoView({behavior:"smooth"});
+ try{C05Storage.saveKTResult(state,2,pct);state.badges=Array.isArray(state.badges)?state.badges:[];if(ok&&!state.badges.includes("kt02-competent")){state.badges.push("kt02-competent");state.xp=(state.xp||0)+150;state.coins=(state.coins||0)+75;C05Storage.save(state)}}catch(e){console.warn("Keputusan KT02 dipaparkan tetapi rekod tidak dapat disimpan.",e)}
 }
 function printKT(){if(resultReady)window.print()}
 function goDash(){if(confirm("Kembali ke Dashboard? Jawapan yang belum dihantar tidak akan disimpan."))location.href="../index.html"}

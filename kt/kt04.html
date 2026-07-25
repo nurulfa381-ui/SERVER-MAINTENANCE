@@ -91,15 +91,15 @@ en:["Write the trainee name and identity card number in the spaces provided.","R
 },
 objective:[
 {id:"a1",ms:"Alat manakah digunakan untuk membuka skru casing server?",en:"Which tool is used to open server casing screws?",o:["Multimeter","Screwdriver Set","Cable Tester","External HDD"],a:1},
-{id:"a2",ms:"Apakah fungsi utama multimeter?",en:"What is the main function of a multimeter?",o:["Membersihkan habuk","Menguji voltan dan kesinambungan","Menyimpan backup","Memasang RJ45"],a:1},
-{id:"a3",ms:"Apakah fungsi ESD Wrist Strap?",en:"What is the function of an ESD Wrist Strap?",o:["Mencegah elektrik statik","Menguji kabel","Menerangi casing","Menyimpan data"],a:0},
-{id:"a4",ms:"Alat manakah sesuai untuk menguji kabel rangkaian?",en:"Which tool is suitable for testing a network cable?",o:["Cable Tester","Flashlight","Thermal Paste","Mini Vacuum"],a:0},
+{id:"a2",ms:"Apakah fungsi utama multimeter?",en:"What is the main function of a multimeter?",o:["Menguji voltan dan kesinambungan","Membersihkan habuk","Menyimpan backup","Memasang RJ45"],a:0},
+{id:"a3",ms:"Apakah fungsi ESD Wrist Strap?",en:"What is the function of an ESD Wrist Strap?",o:["Menguji kabel","Menerangi casing","Menyimpan data","Mencegah elektrik statik"],a:3},
+{id:"a4",ms:"Alat manakah sesuai untuk menguji kabel rangkaian?",en:"Which tool is suitable for testing a network cable?",o:["Flashlight","Thermal Paste","Cable Tester","Mini Vacuum"],a:2},
 {id:"a5",ms:"Apakah kegunaan thermal paste?",en:"What is thermal paste used for?",o:["Membersihkan habuk","Meningkatkan pemindahan haba CPU","Menguji voltan","Menyimpan backup"],a:1},
-{id:"a6",ms:"Apakah fungsi external HDD dalam penyelenggaraan?",en:"What is the function of an external HDD in maintenance?",o:["Membuka casing","Membuat backup data","Menguji RJ45","Mengelakkan ESD"],a:1},
+{id:"a6",ms:"Apakah fungsi external HDD dalam penyelenggaraan?",en:"What is the function of an external HDD in maintenance?",o:["Membuka casing","Menguji RJ45","Mengelakkan ESD","Membuat backup data"],a:3},
 {id:"a7",ms:"Alat manakah digunakan untuk memasang penyambung RJ45?",en:"Which tool is used to attach an RJ45 connector?",o:["LAN Crimper","Anti-static Brush","Multimeter","Flashlight"],a:0},
-{id:"a8",ms:"Apakah fungsi mini vacuum?",en:"What is the function of a mini vacuum?",o:["Mengeluarkan habuk","Menguji voltan","Menyimpan data","Memasang CPU"],a:0},
-{id:"a9",ms:"Apakah kegunaan flashlight semasa penyelenggaraan?",en:"What is a flashlight used for during maintenance?",o:["Menerangi ruang sempit","Menguji kesinambungan","Membuat backup","Mencegah ESD"],a:0},
-{id:"a10",ms:"Mengapakah alat anti-statik penting?",en:"Why are anti-static tools important?",o:["Mengelakkan kerosakan komponen akibat ESD","Menambah kelajuan rangkaian","Meningkatkan storan","Menukar IP"],a:0}
+{id:"a8",ms:"Apakah fungsi mini vacuum?",en:"What is the function of a mini vacuum?",o:["Menguji voltan","Menyimpan data","Mengeluarkan habuk","Memasang CPU"],a:2},
+{id:"a9",ms:"Apakah kegunaan flashlight semasa penyelenggaraan?",en:"What is a flashlight used for during maintenance?",o:["Menguji kesinambungan","Menerangi ruang sempit","Membuat backup","Mencegah ESD"],a:1},
+{id:"a10",ms:"Mengapakah alat anti-statik penting?",en:"Why are anti-static tools important?",o:["Menambah kelajuan rangkaian","Meningkatkan storan","Menukar IP","Mengelakkan kerosakan komponen akibat ESD"],a:3}
 ],
 matching:{
 items:[
@@ -166,16 +166,14 @@ return DATA.objective.every(q=>document.querySelector(`input[name="${q.id}"]:che
 }
 function submitKT(){
 if(!complete()){alert(tr("missing"));return}
-if(!confirm(tr("confirm")))return;
 let a=0,b=0,c=0;
 DATA.objective.forEach(q=>{let s=document.querySelector(`input[name="${q.id}"]:checked`);if(Number(s.value)===q.a)a++});
 DATA.matching.items.forEach(x=>{if(document.getElementById(x[0]).value===x[2])b++});
 DATA.short.forEach(q=>c+=Math.max(0,Math.min(q.m,Number(document.getElementById(q.id+"_m").value)||0)));
 let total=a+b+c,pct=Math.round(total/DATA.totalMarks*100),ok=pct>=DATA.passMark;
-C05Storage.saveKTResult(state,4,pct);
-if(ok&&!state.badges.includes("kt04-competent")){state.badges.push("kt04-competent");state.xp=(state.xp||0)+150;state.coins=(state.coins||0)+75;C05Storage.save(state)}
 resultReady=true;
 let r=document.getElementById("result");r.classList.remove("hidden");r.innerHTML=`${header()}<section class="result"><h2 style="text-align:center">${tr("result")}</h2><div class="score ${ok?"ok":"no"}">${pct}%</div><div class="status ${ok?"ok":"no"}">${ok?tr("competent"):tr("notCompetent")}</div><table style="margin-top:20px"><tr><th>${tr("name")}</th><td>${esc(name)}</td></tr><tr><th>${tr("id")}</th><td>${esc(studentId)}</td></tr><tr><th>${lang==="ms"?"BAHAGIAN A":"SECTION A"}</th><td>${a}/10</td></tr><tr><th>${lang==="ms"?"BAHAGIAN B":"SECTION B"}</th><td>${b}/5</td></tr><tr><th>${lang==="ms"?"BAHAGIAN C":"SECTION C"}</th><td>${c}/5</td></tr><tr><th>${lang==="ms"?"JUMLAH MARKAH":"TOTAL SCORE"}</th><td>${total}/20</td></tr><tr><th>${lang==="ms"?"KEPUTUSAN":"RESULT"}</th><td><b>${ok?tr("competent"):tr("notCompetent")}</b></td></tr><tr><th>${tr("date")}</th><td>__________________________</td></tr></table><div class="sign"><div><b>${lang==="ms"?"NAMA PEGAWAI PENILAI":"ASSESSOR NAME"}</b><div class="line">${lang==="ms"?"Nama Pegawai Penilai":"Assessor Name"}</div></div><div><b>${lang==="ms"?"PENGESAHAN":"VERIFICATION"}</b><div class="line">${lang==="ms"?"Tandatangan Pegawai Penilai":"Assessor Signature"}</div></div></div></section><div class="actions"><button class="print" onclick="printKT()">🖨️ ${tr("print")}</button>${ok?`<button class="primary" onclick="location.href='../index.html'">${tr("back")}</button>`:`<button class="danger" onclick="location.reload()">${tr("repeat")}</button>`}</div>`;r.scrollIntoView({behavior:"smooth"});
+try{C05Storage.saveKTResult(state,4,pct);state.badges=Array.isArray(state.badges)?state.badges:[];if(ok&&!state.badges.includes("kt04-competent")){state.badges.push("kt04-competent");state.xp=(state.xp||0)+150;state.coins=(state.coins||0)+75;C05Storage.save(state)}}catch(e){console.warn("Keputusan KT04 dipaparkan tetapi rekod tidak dapat disimpan.",e)}
 }
 function toggleLang(){lang=lang==="ms"?"en":"ms";state.lang=lang;C05Storage.save(state);render()}
 function printKT(){if(resultReady)window.print()}

@@ -111,9 +111,9 @@ const DATA={
   ],
   objective:[
     {id:"a1",q:"Siapakah yang dibenarkan memasuki bilik server?",o:["Semua pelajar","Personel yang diberi kuasa sahaja","Mana-mana pelawat","Sesiapa yang mempunyai telefon"],a:1},
-    {id:"a2",q:"Apakah fungsi utama CCTV di bilik server?",o:["Mengawal suhu","Merakam aktiviti dan menyokong audit keselamatan","Menyimpan backup","Mengawal alamat IP"],a:1},
-    {id:"a3",q:"Apakah tindakan yang sesuai apabila berlaku kebakaran kecil melibatkan peralatan elektrik?",o:["Gunakan air","Gunakan pemadam api yang sesuai untuk peralatan elektrik","Buka semua tingkap","Teruskan bekerja"],a:1},
-    {id:"a4",q:"Mengapakah suhu bilik server perlu dipantau?",o:["Untuk keselesaan pelawat","Untuk mengelakkan komponen server terlalu panas","Untuk menjimatkan kertas","Untuk menambah ruang storan"],a:1}
+    {id:"a2",q:"Apakah fungsi utama CCTV di bilik server?",o:["Merakam aktiviti dan menyokong audit keselamatan","Mengawal suhu","Menyimpan backup","Mengawal alamat IP"],a:0},
+    {id:"a3",q:"Apakah tindakan yang sesuai apabila berlaku kebakaran kecil melibatkan peralatan elektrik?",o:["Gunakan air","Buka semua tingkap","Teruskan bekerja","Gunakan pemadam api yang sesuai untuk peralatan elektrik"],a:3},
+    {id:"a4",q:"Mengapakah suhu bilik server perlu dipantau?",o:["Untuk keselesaan pelawat","Untuk menjimatkan kertas","Untuk mengelakkan komponen server terlalu panas","Untuk menambah ruang storan"],a:2}
   ],
   matching:{
     items:[
@@ -355,10 +355,6 @@ function submitKT(){
     return;
   }
 
-  if(!confirm("Pastikan markah Bahagian C telah dimasukkan oleh Pegawai Penilai. Teruskan?")){
-    return;
-  }
-
   let a=0;
   let b=0;
   let c=0;
@@ -379,15 +375,6 @@ function submitKT(){
   const total=a+b+c;
   const pct=Math.round(total/DATA.totalMarks*100);
   const ok=pct>=DATA.passMark;
-
-  C05Storage.saveKTResult(state,3,pct);
-
-  if(ok && !state.badges.includes("kt03-competent")){
-    state.badges.push("kt03-competent");
-    state.xp=(state.xp||0)+150;
-    state.coins=(state.coins||0)+75;
-    C05Storage.save(state);
-  }
 
   resultReady=true;
 
@@ -437,6 +424,18 @@ function submitKT(){
     </div>`;
 
   r.scrollIntoView({behavior:"smooth"});
+  try{
+    C05Storage.saveKTResult(state,3,pct);
+    state.badges=Array.isArray(state.badges)?state.badges:[];
+    if(ok&&!state.badges.includes("kt03-competent")){
+      state.badges.push("kt03-competent");
+      state.xp=(state.xp||0)+150;
+      state.coins=(state.coins||0)+75;
+      C05Storage.save(state);
+    }
+  }catch(e){
+    console.warn("Keputusan KT03 dipaparkan tetapi rekod tidak dapat disimpan.",e);
+  }
 }
 
 function printKT(){
