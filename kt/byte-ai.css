@@ -1,0 +1,17 @@
+#byteAiRoot{position:fixed;right:18px;bottom:18px;z-index:9999;font-family:Poppins,Arial,sans-serif}
+.byte-launcher{width:66px;height:66px;border:0;border-radius:50%;background:linear-gradient(135deg,#2563eb,#7c3aed);color:#fff;font-size:32px;box-shadow:0 14px 40px rgba(0,0,0,.4);cursor:pointer}
+.byte-panel{width:min(370px,calc(100vw - 30px));max-height:72vh;display:none;flex-direction:column;border:1px solid rgba(255,255,255,.16);border-radius:20px;overflow:hidden;background:linear-gradient(160deg,#10243d,#07111f);box-shadow:0 24px 70px rgba(0,0,0,.5)}
+.byte-panel.open{display:flex}
+.byte-head{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;background:rgba(37,99,235,.18)}
+.byte-id{display:flex;gap:10px;align-items:center}.byte-avatar{font-size:34px}.byte-id b,.byte-id small{display:block}.byte-id small{color:#cbd5e1}
+.byte-close{border:0;background:transparent;color:#fff;font-size:24px;cursor:pointer}
+.byte-body{padding:14px;overflow:auto;display:grid;gap:10px}
+.byte-message{padding:12px 14px;border-radius:14px;background:#17395f;color:#f8fafc;line-height:1.45}
+.byte-message.user{background:#2563eb;margin-left:35px}
+.byte-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.byte-actions button,.byte-footer button{padding:10px;border:0;border-radius:11px;background:#17395f;color:#fff;font-weight:700;cursor:pointer}
+.byte-footer{display:grid;grid-template-columns:1fr auto;gap:8px;padding:12px;border-top:1px solid rgba(255,255,255,.12)}
+.byte-footer input{min-width:0;padding:11px 12px;border-radius:11px;border:1px solid rgba(255,255,255,.14);background:#06111f;color:#fff}
+.story-alert{width:min(940px,100%);margin:18px auto;padding:18px;border-radius:18px;background:linear-gradient(135deg,rgba(220,38,38,.16),rgba(245,158,11,.12));border:1px solid rgba(245,158,11,.32);text-align:left}
+.story-alert strong{display:block;margin-bottom:6px;color:#fcd34d}
+@media(max-width:680px){#byteAiRoot{right:10px;bottom:10px}.byte-launcher{width:58px;height:58px}.byte-panel{max-height:78vh}}
