@@ -241,7 +241,6 @@ function renderResult(){
 function start(){screen="quiz";render()}function choose(i){answers[index]=i;renderQuiz()}function prev(){if(index>0){index--;renderQuiz()}}function next(){if(answers[index]===null){alert(t("unanswered"));return}if(index<9){index++;renderQuiz()}}
 function submitKT(){
  if(answers.some(v=>v===null)){alert(t("unanswered"));index=answers.findIndex(v=>v===null);renderQuiz();return}
- if(!confirm(t("confirm")))return;
  score=Q.reduce((n,q,i)=>n+(answers[i]===q.a?1:0),0)*10;passed=score>=60;
  screen="result";render();
  try{if(!state.ktScores||typeof state.ktScores!=="object")state.ktScores={};const previous=Number(state.ktScores["7"]??state.ktScores.kt07??0)||0;state.ktScores["7"]=Math.max(previous,score);state.ktScores.kt07=Math.max(previous,score);if(passed){const first=previous<60;state.unlocked=Math.max(Number(state.unlocked)||1,8);if(!Array.isArray(state.badges))state.badges=[];if(!state.badges.includes("kt07-pass"))state.badges.push("kt07-pass");if(first){state.xp=(Number(state.xp)||0)+180;state.coins=(Number(state.coins)||0)+90}}if(!Array.isArray(state.history))state.history=[];state.history.push({type:"KT07",score,status:passed?"TERAMPIL":"BELUM TERAMPIL",date:new Date().toISOString()});save()}catch(e){console.warn("Rekod KT07 tidak dapat disimpan",e)}
