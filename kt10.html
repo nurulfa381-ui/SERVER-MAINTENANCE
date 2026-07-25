@@ -26,7 +26,7 @@ const app=document.getElementById("app");
 const store=window.C05Storage||window.SHStorage;
 function defaults(){return{lang:"ms",student:{name:"Agent Server",id:"—",className:"—"},unlocked:8,completedKP:[],ktScores:{},xp:0,coins:0,badges:[]}}
 function load(){if(store?.load)return store.load();try{return{...defaults(),...JSON.parse(localStorage.getItem("serverHeroV5State")||"{}")}}catch(e){return defaults()}}
-function save(){if(store?.save)store.save(state);else localStorage.setItem("serverHeroV5State",JSON.stringify(state))}
+function save(){try{if(store?.save)store.save(state);else localStorage.setItem("serverHeroV5State",JSON.stringify(state));return true}catch(e){console.warn("Progress could not be saved in this preview.",e);return false}}
 let state=load(),lang=state.lang||"ms",screen="cover",index=0,answers=Array(10).fill(null),score=0,passed=false;
 const Q=[
  {ms:"Apakah tujuan utama rekod penyelenggaraan server?",en:"What is the main purpose of a server maintenance record?",o:{ms:["Mendokumentasikan kerja untuk rujukan, audit dan tindakan susulan","Menggantikan semua sandaran server","Menghapuskan keperluan pemantauan","Menukar alamat IP secara automatik"],en:["Document work for reference, audits and follow-up actions","Replace all server backups","Eliminate the need for monitoring","Automatically change IP addresses"]},a:0},
@@ -53,8 +53,8 @@ Q.forEach((q,i)=>{
  }
 });
 const T={
- ms:{title:"KT10 · Rekod Penyelenggaraan",sub:"KERTAS TUGASAN 10",intro:"Jawab semua 10 soalan. Markah 60% dan ke atas ialah TERAMPIL. Lulus KT10 akan membuka KP11.",name:"Nama Pelajar",id:"ID Pelajar",cls:"Kelas",start:"MULA KT10",dash:"Dashboard",lang:"English",full:"Skrin Penuh",question:"Soalan",back:"Kembali",next:"Seterusnya",submit:"Hantar Jawapan",confirm:"Adakah anda pasti mahu menghantar jawapan?",complete:"Keputusan KT10",skor:"Markah",competent:"TERAMPIL",notYet:"BELUM TERAMPIL",passMsg:"Tahniah! KP11 kini telah dibuka.",failMsg:"Anda perlu mencapai sekurang-kurangnya 60%. Cuba semula selepas membuat ulang kaji.",xp:"XP",coins:"Syiling",unlock:"Modul Dibuka",kp11:"TERUSKAN KE KP11",retry:"CUBA SEMULA",review:"Semakan Jawapan",correct:"Jawapan betul",chosen:"Jawapan anda",unanswered:"Sila jawab soalan ini dahulu."},
- en:{title:"KT10 · Maintenance Records",sub:"TASK PAPER 10",intro:"Answer all 10 questions. A score of 60% or above is COMPETENT. Passing KT10 unlocks KP11.",name:"Student Name",id:"Student ID",cls:"Class",start:"START KT10",dash:"Dashboard",lang:"Bahasa Melayu",full:"Fullscreen",question:"Question",back:"Back",next:"Next",submit:"Submit Answers",confirm:"Are you sure you want to submit your answers?",complete:"KT10 Result",skor:"Score",competent:"COMPETENT",notYet:"NOT YET COMPETENT",passMsg:"Congratulations! KP11 is now unlocked.",failMsg:"You must score at least 60%. Review the lesson and try again.",xp:"XP",coins:"Coins",unlock:"Module Unlocked",kp11:"CONTINUE TO KP11",retry:"TRY AGAIN",review:"Answer Review",correct:"Correct answer",chosen:"Your answer",unanswered:"Please answer this question first."}
+ ms:{title:"KT10 · Rekod Penyelenggaraan",sub:"KERTAS TUGASAN 10 · MARKAH FIX V4",intro:"Jawab semua 10 soalan. Markah 60% dan ke atas ialah TERAMPIL. Lulus KT10 melengkapkan SERVER HERO.",name:"Nama Pelajar",id:"ID Pelajar",cls:"Kelas",start:"MULA KT10",dash:"Dashboard",lang:"English",full:"Skrin Penuh",question:"Soalan",back:"Kembali",next:"Seterusnya",submit:"Hantar Jawapan",complete:"Keputusan KT10",skor:"Markah",competent:"TERAMPIL",notYet:"BELUM TERAMPIL",passMsg:"Tahniah! Anda telah menamatkan semua 10 KP dan 10 KT.",failMsg:"Anda perlu mencapai sekurang-kurangnya 60%. Cuba semula selepas membuat ulang kaji.",xp:"XP",coins:"Syiling",unlock:"Status Kursus",finished:"TAMAT 100%",dashboard:"KEMBALI KE DASHBOARD",retry:"CUBA SEMULA",review:"Semakan Jawapan",correct:"Jawapan betul",chosen:"Jawapan anda",unanswered:"Sila jawab soalan ini dahulu."},
+ en:{title:"KT10 · Maintenance Records",sub:"TASK PAPER 10 · SCORE FIX V4",intro:"Answer all 10 questions. A score of 60% or above is COMPETENT. Passing KT10 completes SERVER HERO.",name:"Student Name",id:"Student ID",cls:"Class",start:"START KT10",dash:"Dashboard",lang:"Bahasa Melayu",full:"Fullscreen",question:"Question",back:"Back",next:"Next",submit:"Submit Answers",complete:"KT10 Result",skor:"Score",competent:"COMPETENT",notYet:"NOT YET COMPETENT",passMsg:"Congratulations! You have completed all 10 information and task papers.",failMsg:"You must score at least 60%. Review the lesson and try again.",xp:"XP",coins:"Coins",unlock:"Course Status",finished:"100% COMPLETE",dashboard:"RETURN TO DASHBOARD",retry:"TRY AGAIN",review:"Answer Review",correct:"Correct answer",chosen:"Your answer",unanswered:"Please answer this question first."}
 };
 const t=k=>T[lang][k]||k;
 function header(){return `<header class="header"><div class="brand"><div class="logo">🏫</div><div><h1>${t("title")}</h1><small>C05 – SERVER MAINTENANCE</small></div></div><div class="tools"><button onclick="dash()">← ${t("dash")}</button><button onclick="toggleLang()">🌐 ${t("lang")}</button><button onclick="full()">⛶ ${t("full")}</button></div></header>`}
@@ -68,18 +68,28 @@ function renderQuiz(){
 }
 function renderResult(){
  const review=Q.map((q,i)=>`<article class="${answers[i]===q.a?"ok":""}"><b>${i+1}. ${q[lang]}</b><br><small>${t("chosen")}: ${answers[i]===null?"—":q.o[lang][answers[i]]}<br>${t("correct")}: ${q.o[lang][q.a]}</small></article>`).join("");
- app.innerHTML=`<div class="shell">${header()}<section class="card result"><div><div class="seal">${passed?"🏆":"📘"}</div><h2 class="title">${t("complete")}</h2><div class="score">${score}%</div><div class="status ${passed?"pass":"fail"}">${passed?t("competent"):t("notYet")}</div><p class="lead">${passed?t("passMsg"):t("failMsg")}</p>${passed?`<div class="reward"><div><small>${t("xp")}</small><b>+180</b></div><div><small>${t("coins")}</small><b>+90</b></div><div><small>${t("unlock")}</small><b>KP11</b></div></div><button class="continue" onclick="kp11()">${t("kp11")} →</button>`:`<button class="start" onclick="retry()">↻ ${t("retry")}</button>`}<div class="review"><h3>${t("review")}</h3>${review}</div></div></section></div>`;
+ app.innerHTML=`<div class="shell">${header()}<section class="card result"><div><div class="seal">${passed?"🏆":"📘"}</div><h2 class="title">${t("complete")}</h2><div class="score"><small style="display:block;font:800 18px Poppins,sans-serif;color:#cbd5e1">${t("skor")}</small>${score}%</div><div class="status ${passed?"pass":"fail"}">${passed?t("competent"):t("notYet")}</div><p class="lead">${passed?t("passMsg"):t("failMsg")}</p>${passed?`<div class="reward"><div><small>${t("xp")}</small><b>+180</b></div><div><small>${t("coins")}</small><b>+90</b></div><div><small>${t("unlock")}</small><b>${t("finished")}</b></div></div><button class="continue" onclick="dash()">${t("dashboard")} →</button>`:`<button class="start" onclick="retry()">↻ ${t("retry")}</button>`}<div class="review"><h3>${t("review")}</h3>${review}</div></div></section></div>`;
+ window.scrollTo({top:0,behavior:"smooth"});
 }
 function start(){screen="quiz";render()}function choose(i){answers[index]=i;renderQuiz()}function prev(){if(index>0){index--;renderQuiz()}}function next(){if(answers[index]===null){alert(t("unanswered"));return}if(index<9){index++;renderQuiz()}}
 function submitKT(){
  if(answers.some(v=>v===null)){alert(t("unanswered"));index=answers.findIndex(v=>v===null);renderQuiz();return}
- if(!confirm(t("confirm")))return;
  score=Q.reduce((n,q,i)=>n+(answers[i]===q.a?1:0),0)*10;passed=score>=60;
- if(!state.ktScores)state.ktScores={};const previous=Number(state.ktScores["10"]??state.ktScores.kt10??0);state.ktScores["10"]=Math.max(previous,score);state.ktScores.kt10=Math.max(previous,score);
- if(passed){const first=previous<60;state.unlocked=Math.max(Number(state.unlocked)||1,11);if(!Array.isArray(state.badges))state.badges=[];if(!state.badges.includes("kt10-pass"))state.badges.push("kt10-pass");if(first){state.xp=(Number(state.xp)||0)+180;state.coins=(Number(state.coins)||0)+90}}
- if(!Array.isArray(state.history))state.history=[];state.history.push({type:"KT10",score,status:passed?"TERAMPIL":"BELUM TERAMPIL",date:new Date().toISOString()});save();screen="result";render();
+ screen="result";
+ render();
+ try{
+  if(!state||typeof state!=="object")state=defaults();
+  if(!state.ktScores||typeof state.ktScores!=="object")state.ktScores={};
+  const previous=Number(state.ktScores["10"]??state.ktScores.kt10??state.ktScores.KT10??0);
+  const best=Math.max(previous,score);
+  state.ktScores["10"]=best;state.ktScores.kt10=best;state.ktScores.KT10=best;
+  if(passed){const first=previous<60;state.unlocked=10;state.courseCompleted=true;if(!Array.isArray(state.badges))state.badges=[];if(!state.badges.includes("kt10-pass"))state.badges.push("kt10-pass");if(!state.badges.includes("server-hero-complete"))state.badges.push("server-hero-complete");if(first){state.xp=(Number(state.xp)||0)+180;state.coins=(Number(state.coins)||0)+90}}
+  if(!Array.isArray(state.history))state.history=[];
+  state.history.push({type:"KT10",score,status:passed?"TERAMPIL":"BELUM TERAMPIL",date:new Date().toISOString()});
+  save();
+ }catch(e){console.warn("Markah dipaparkan tetapi rekod kemajuan tidak dapat disimpan.",e)}
 }
-function retry(){index=0;answers=Array(10).fill(null);score=0;passed=false;screen="quiz";render()}function toggleLang(){lang=lang==="ms"?"en":"ms";state.lang=lang;save();render()}function dash(){location.href="../index.html"}function kp11(){location.href="../kp/kp11.html"}function full(){if(!document.fullscreenElement)document.documentElement.requestFullscreen?.();else document.exitFullscreen?.()}
+function retry(){index=0;answers=Array(10).fill(null);score=0;passed=false;screen="quiz";render()}function toggleLang(){lang=lang==="ms"?"en":"ms";state.lang=lang;save();render()}function dash(){location.href="../index.html"}function full(){if(!document.fullscreenElement)document.documentElement.requestFullscreen?.();else document.exitFullscreen?.()}
 render();
 </script>
 </body>
