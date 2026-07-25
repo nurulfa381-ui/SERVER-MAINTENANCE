@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#06182b">
+<title>KT06 · Active Directory Domain Services</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700;800;900&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#020817;--panel:#0a2038ed;--line:#94a3b838;--text:#f8fafc;--muted:#cbd5e1;--blue:#2563eb;--purple:#7c3aed;--orange:#f59e0b;--green:#16a34a;--red:#dc2626;--shadow:0 22px 65px #0007}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;min-height:100vh;font-family:Poppins,sans-serif;color:var(--text);background:radial-gradient(circle at 12% 10%,#2563eb45,transparent 30%),radial-gradient(circle at 90% 88%,#7c3aed38,transparent 30%),linear-gradient(135deg,var(--bg),#071a2d)}
+button{font:inherit;cursor:pointer}.shell{width:min(1450px,calc(100% - 28px));margin:auto;padding:16px 0 48px}.header{position:sticky;top:10px;z-index:20;display:flex;justify-content:space-between;align-items:center;gap:16px;padding:14px 18px;border:1px solid var(--line);border-radius:20px;background:#020c19ee;box-shadow:var(--shadow);backdrop-filter:blur(20px)}.brand{display:flex;align-items:center;gap:14px}.logo{display:grid;place-items:center;width:64px;height:64px;flex:0 0 64px;border:2px solid #ffffff50;border-radius:18px;background:#fff;font-size:34px}.brand h1{margin:0;font-family:Montserrat,sans-serif;font-size:clamp(18px,2vw,28px)}.brand small{display:block;margin-top:4px;color:#60a5fa;font-weight:700}.tools{display:flex;gap:8px;flex-wrap:wrap}.tools button,.secondary{padding:10px 14px;border:1px solid var(--line);border-radius:12px;background:#ffffff12;color:#fff;font-weight:800}
+.card{margin-top:18px;padding:clamp(20px,4vw,40px);border:1px solid var(--line);border-radius:26px;background:linear-gradient(145deg,#0c2541f2,#041222f2);box-shadow:var(--shadow)}.cover{text-align:center;min-height:650px;display:grid;place-items:center}.tag{display:inline-block;padding:9px 16px;border:1px solid #f59e0b72;border-radius:999px;background:#f59e0b25;color:#fde68a;font-weight:900}.hero-icon{font-size:clamp(90px,13vw,150px);margin:18px}.cover h2,.title{font-family:Montserrat,sans-serif}.cover h2{margin:0;font-size:clamp(34px,5vw,66px)}.lead{max-width:950px;margin:16px auto;color:var(--muted);font-size:clamp(17px,2vw,23px);line-height:1.7}.candidate{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;max-width:920px;margin:25px auto}.candidate div{padding:15px;border:1px solid var(--line);border-radius:14px;background:#ffffff0c}.candidate small,.candidate b{display:block}.candidate small{color:var(--muted)}.start,.submit,.continue{padding:15px 24px;border:0;border-radius:14px;color:#fff;font-weight:900;background:linear-gradient(135deg,var(--blue),var(--purple))}
+.topline{display:flex;justify-content:space-between;gap:15px;align-items:center}.title{margin:0;font-size:clamp(28px,4vw,46px)}.counter{padding:10px 14px;border-radius:999px;background:#2563eb33;color:#bfdbfe;font-weight:900}.progress{height:14px;margin:18px 0 30px;overflow:hidden;border-radius:999px;background:#020b16}.progress i{display:block;height:100%;background:linear-gradient(90deg,var(--orange),#facc15,var(--green));transition:.3s}.question{padding:22px;border:1px solid var(--line);border-radius:18px;background:#ffffff0c}.question h3{font-size:clamp(20px,2.4vw,29px);line-height:1.45}.options{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px}.option{padding:16px;border:1px solid var(--line);border-radius:13px;background:#ffffff0d;color:#fff;text-align:left;font-weight:700}.option:hover{border-color:#60a5fa}.option.selected{border-color:#60a5fa;background:#2563eb35}.qnav{display:flex;justify-content:space-between;gap:14px;margin-top:22px}.qnav button{min-width:160px;padding:13px 18px;border-radius:13px}.submit{background:linear-gradient(135deg,var(--orange),#d97706);color:#111827}
+.result{text-align:center;min-height:650px;display:grid;place-items:center}.seal{font-size:115px}.score{font-family:Montserrat,sans-serif;font-size:clamp(65px,10vw,120px);font-weight:900;color:#fde68a}.status{display:inline-block;padding:11px 22px;border-radius:999px;font-size:clamp(22px,3vw,34px);font-weight:900}.pass{background:#16a34a32;color:#bbf7d0;border:1px solid #22c55e}.fail{background:#dc262630;color:#fecaca;border:1px solid #ef4444}.reward{display:grid;grid-template-columns:repeat(3,1fr);gap:13px;max-width:700px;margin:25px auto}.reward div{padding:16px;border:1px solid var(--line);border-radius:15px;background:#ffffff0c}.review{text-align:left;margin-top:26px}.review article{margin:11px 0;padding:16px;border-radius:14px;background:#ffffff0c;border-left:5px solid var(--red)}.review article.ok{border-left-color:var(--green)}.review small{color:var(--muted)}
+@media(max-width:800px){.header{position:relative;align-items:flex-start;flex-direction:column}.tools{width:100%}.tools button{flex:1}.candidate,.options,.reward{grid-template-columns:1fr}.qnav{flex-direction:column}.qnav button{width:100%}}
+</style>
+</head>
+<body>
+<main id="app"></main>
+<script src="../storage.js"></script>
+<script>
+const app=document.getElementById("app");
+const store=window.C05Storage||window.SHStorage;
+function defaults(){return{lang:"ms",student:{name:"Agent Server",id:"—",className:"—"},unlocked:6,completedKP:[],ktScores:{},xp:0,coins:0,badges:[]}}
+function load(){if(store?.load)return store.load();try{return{...defaults(),...JSON.parse(localStorage.getItem("serverHeroV5State")||"{}")}}catch(e){return defaults()}}
+function save(){if(store?.save)store.save(state);else localStorage.setItem("serverHeroV5State",JSON.stringify(state))}
+let state=load(),lang=state.lang||"ms",screen="cover",index=0,answers=Array(10).fill(null),score=0,passed=false;
+const Q=[
+ {
+  "ms": "Apakah fungsi utama Active Directory Domain Services (AD DS)?",
+  "en": "What is the main function of Active Directory Domain Services (AD DS)?",
+  "o": {
+   "ms": [
+    "Memformat cakera keras secara automatik",
+    "Mengurus identiti, komputer dan sumber rangkaian secara berpusat",
+    "Menggantikan fungsi suis rangkaian",
+    "Mengawal kelajuan kipas server"
+   ],
+   "en": [
+    "Automatically format hard disks",
+    "Centrally manage identities, computers and network resources",
+    "Replace the function of a network switch",
+    "Control server fan speed"
+   ]
+  },
+  "a": 1
+ },
+ {
+  "ms": "Apakah persediaan rangkaian penting sebelum memasang AD DS?",
+  "en": "What important network preparation is required before installing AD DS?",
+  "o": {
+   "ms": [
+    "Alamat IP statik pada server",
+    "Wallpaper beresolusi tinggi",
+    "Sambungan Bluetooth",
+    "Akaun tetamu tanpa kata laluan"
+   ],
+   "en": [
+    "A static IP address on the server",
+    "A high-resolution wallpaper",
+    "A Bluetooth connection",
+    "A guest account without a password"
+   ]
+  },
+  "a": 0
+ },
+ {
+  "ms": "Di manakah peranan AD DS dipasang dalam Windows Server 2019?",
+  "en": "Where is the AD DS role installed in Windows Server 2019?",
+  "o": {
+   "ms": [
+    "Device Manager – Display adapters",
+    "Recycle Bin",
+    "Paint",
+    "Server Manager – Add Roles and Features"
+   ],
+   "en": [
+    "Device Manager – Display adapters",
+    "Recycle Bin",
+    "Paint",
+    "Server Manager – Add Roles and Features"
+   ]
+  },
+  "a": 3
+ },
+ {
+  "ms": "Apakah langkah penting selepas peranan AD DS selesai dipasang?",
+  "en": "What is the important step after the AD DS role is installed?",
+  "o": {
+   "ms": [
+    "Nyahpasang DNS",
+    "Padam alamat IP server",
+    "Promote server sebagai domain controller",
+    "Matikan server secara kekal"
+   ],
+   "en": [
+    "Uninstall DNS",
+    "Delete the server IP address",
+    "Promote the server to a domain controller",
+    "Shut down the server permanently"
+   ]
+  },
+  "a": 2
+ },
+ {
+  "ms": "Apakah maksud domain dalam Active Directory?",
+  "en": "What does a domain mean in Active Directory?",
+  "o": {
+   "ms": [
+    "Satu jenis kabel rangkaian",
+    "Kumpulan logik objek yang berkongsi pangkalan data dan polisi",
+    "Nama pemacu cakera",
+    "Perisian antivirus"
+   ],
+   "en": [
+    "A type of network cable",
+    "A logical group of objects sharing a database and policies",
+    "A disk drive name",
+    "Antivirus software"
+   ]
+  },
+  "a": 1
+ },
+ {
+  "ms": "Apakah fungsi Domain Name System (DNS) dalam persekitaran AD DS?",
+  "en": "What is the function of Domain Name System (DNS) in an AD DS environment?",
+  "o": {
+   "ms": [
+    "Mengawal bekalan kuasa",
+    "Menambah kapasiti RAM",
+    "Mencetak akaun pengguna",
+    "Membantu klien mencari domain controller dan perkhidmatan domain"
+   ],
+   "en": [
+    "Control the power supply",
+    "Increase RAM capacity",
+    "Print user accounts",
+    "Help clients locate domain controllers and domain services"
+   ]
+  },
+  "a": 3
+ },
+ {
+  "ms": "Apakah akaun yang diperlukan untuk memasang dan mengkonfigurasi AD DS?",
+  "en": "Which account is required to install and configure AD DS?",
+  "o": {
+   "ms": [
+    "Akaun dengan keistimewaan pentadbir",
+    "Akaun tetamu sahaja",
+    "Akaun pengguna tanpa kata laluan",
+    "Akaun media sosial"
+   ],
+   "en": [
+    "An account with administrator privileges",
+    "A guest account only",
+    "A user account without a password",
+    "A social media account"
+   ]
+  },
+  "a": 0
+ },
+ {
+  "ms": "Apakah fungsi kata laluan Directory Services Restore Mode (DSRM)?",
+  "en": "What is the function of the Directory Services Restore Mode (DSRM) password?",
+  "o": {
+   "ms": [
+    "Menyambung pencetak USB",
+    "Membuka kunci monitor",
+    "Digunakan untuk pemulihan dan penyelenggaraan Active Directory",
+    "Menukar alamat MAC"
+   ],
+   "en": [
+    "Connect a USB printer",
+    "Unlock the monitor",
+    "Used for Active Directory recovery and maintenance",
+    "Change the MAC address"
+   ]
+  },
+  "a": 2
+ },
+ {
+  "ms": "Apakah yang biasanya berlaku selepas promosi domain controller selesai?",
+  "en": "What normally happens after domain controller promotion is completed?",
+  "o": {
+   "ms": [
+    "Semua cakera diformat",
+    "Server perlu dimulakan semula",
+    "Alamat IP bertukar kepada dinamik secara paksa",
+    "Windows Server dinyahpasang"
+   ],
+   "en": [
+    "All disks are formatted",
+    "The server must restart",
+    "The IP address is forcibly changed to dynamic",
+    "Windows Server is uninstalled"
+   ]
+  },
+  "a": 1
+ },
+ {
+  "ms": "Alat manakah digunakan untuk mengurus pengguna dan komputer dalam domain?",
+  "en": "Which tool is used to manage users and computers in a domain?",
+  "o": {
+   "ms": [
+    "Windows Media Player",
+    "Disk Cleanup",
+    "Task Scheduler sahaja",
+    "Active Directory Users and Computers"
+   ],
+   "en": [
+    "Windows Media Player",
+    "Disk Cleanup",
+    "Task Scheduler only",
+    "Active Directory Users and Computers"
+   ]
+  },
+  "a": 3
+ }
+];
+const T={
+ ms:{title:"KT06 · Active Directory Domain Services",sub:"KERTAS TUGASAN 06",intro:"Jawab semua 10 soalan. Markah 60% dan ke atas ialah TERAMPIL. Lulus KT06 akan membuka KP07.",name:"Nama Pelajar",id:"ID Pelajar",cls:"Kelas",start:"MULA KT06",dash:"Dashboard",lang:"English",full:"Skrin Penuh",question:"Soalan",back:"Kembali",next:"Seterusnya",submit:"Hantar Jawapan",confirm:"Adakah anda pasti mahu menghantar jawapan?",complete:"Keputusan KT06",skor:"Markah",competent:"TERAMPIL",notYet:"BELUM TERAMPIL",passMsg:"Tahniah! KP07 kini telah dibuka.",failMsg:"Anda perlu mencapai sekurang-kurangnya 60%. Cuba semula selepas membuat ulang kaji.",xp:"XP",coins:"Syiling",unlock:"Modul Dibuka",kp7:"TERUSKAN KE KP07",retry:"CUBA SEMULA",review:"Semakan Jawapan",correct:"Jawapan betul",chosen:"Jawapan anda",unanswered:"Sila jawab soalan ini dahulu."},
+ en:{title:"KT06 · Active Directory Domain Services",sub:"TASK PAPER 06",intro:"Answer all 10 questions. A score of 60% or above is COMPETENT. Passing KT06 unlocks KP07.",name:"Student Name",id:"Student ID",cls:"Class",start:"START KT06",dash:"Dashboard",lang:"Bahasa Melayu",full:"Fullscreen",question:"Question",back:"Back",next:"Next",submit:"Submit Answers",confirm:"Are you sure you want to submit your answers?",complete:"KT06 Result",skor:"Score",competent:"COMPETENT",notYet:"NOT YET COMPETENT",passMsg:"Congratulations! KP07 is now unlocked.",failMsg:"You must score at least 60%. Review the lesson and try again.",xp:"XP",coins:"Coins",unlock:"Module Unlocked",kp7:"CONTINUE TO KP07",retry:"TRY AGAIN",review:"Answer Review",correct:"Correct answer",chosen:"Your answer",unanswered:"Please answer this question first."}
+};
+const t=k=>T[lang][k]||k;
+function header(){return `<header class="header"><div class="brand"><div class="logo">🏫</div><div><h1>${t("title")}</h1><small>C05 – SERVER MAINTENANCE</small></div></div><div class="tools"><button onclick="dash()">← ${t("dash")}</button><button onclick="toggleLang()">🌐 ${t("lang")}</button><button onclick="full()">⛶ ${t("full")}</button></div></header>`}
+function render(){
+ if(screen==="cover")app.innerHTML=`<div class="shell">${header()}<section class="card cover"><div><span class="tag">${t("sub")}</span><div class="hero-icon">🏢</div><h2>${t("title").replace("KT06 · ","")}</h2><p class="lead">${t("intro")}</p><div class="candidate"><div><small>${t("name")}</small><b>${state.student?.name||"Agent Server"}</b></div><div><small>${t("id")}</small><b>${state.student?.id||"—"}</b></div><div><small>${t("cls")}</small><b>${state.student?.className||state.student?.class||"—"}</b></div></div><button class="start" onclick="start()">${t("start")} →</button></div></section></div>`;
+ else if(screen==="quiz")renderQuiz();else renderResult();
+}
+function renderQuiz(){
+ const q=Q[index],pct=Math.round((index+1)/Q.length*100);
+ app.innerHTML=`<div class="shell">${header()}<section class="card"><div class="topline"><h2 class="title">${t("sub")}</h2><span class="counter">${t("question")} ${index+1}/10</span></div><div class="progress"><i style="width:${pct}%"></i></div><article class="question"><h3>${index+1}. ${q[lang]}</h3><div class="options">${q.o[lang].map((x,i)=>`<button class="option ${answers[index]===i?"selected":""}" onclick="choose(${i})"><b>${String.fromCharCode(65+i)}.</b> ${x}</button>`).join("")}</div></article><nav class="qnav"><button class="secondary" onclick="prev()" ${index===0?"disabled":""}>← ${t("back")}</button>${index===9?`<button class="submit" onclick="submitKT()">${t("submit")} ✓</button>`:`<button class="start" onclick="next()">${t("next")} →</button>`}</nav></section></div>`;
+}
+function renderResult(){
+ const review=Q.map((q,i)=>`<article class="${answers[i]===q.a?"ok":""}"><b>${i+1}. ${q[lang]}</b><br><small>${t("chosen")}: ${answers[i]===null?"—":q.o[lang][answers[i]]}<br>${t("correct")}: ${q.o[lang][q.a]}</small></article>`).join("");
+ app.innerHTML=`<div class="shell">${header()}<section class="card result"><div><div class="seal">${passed?"🏆":"📘"}</div><h2 class="title">${t("complete")}</h2><div class="score">${score}%</div><div class="status ${passed?"pass":"fail"}">${passed?t("competent"):t("notYet")}</div><p class="lead">${passed?t("passMsg"):t("failMsg")}</p>${passed?`<div class="reward"><div><small>${t("xp")}</small><b>+180</b></div><div><small>${t("coins")}</small><b>+90</b></div><div><small>${t("unlock")}</small><b>KP07</b></div></div><button class="continue" onclick="kp7()">${t("kp7")} →</button>`:`<button class="start" onclick="retry()">↻ ${t("retry")}</button>`}<div class="review"><h3>${t("review")}</h3>${review}</div></div></section></div>`;
+}
+function start(){screen="quiz";render()}function choose(i){answers[index]=i;renderQuiz()}function prev(){if(index>0){index--;renderQuiz()}}function next(){if(answers[index]===null){alert(t("unanswered"));return}if(index<9){index++;renderQuiz()}}
+function submitKT(){
+ if(answers.some(v=>v===null)){alert(t("unanswered"));index=answers.findIndex(v=>v===null);renderQuiz();return}
+ if(!confirm(t("confirm")))return;
+ score=Q.reduce((n,q,i)=>n+(answers[i]===q.a?1:0),0)*10;passed=score>=60;
+ if(!state.ktScores)state.ktScores={};const previous=Number(state.ktScores["6"]??state.ktScores.kt06??0);state.ktScores["6"]=Math.max(previous,score);state.ktScores.kt06=Math.max(previous,score);
+ if(passed){const first=previous<60;state.unlocked=Math.max(Number(state.unlocked)||1,7);if(!Array.isArray(state.badges))state.badges=[];if(!state.badges.includes("kt06-pass"))state.badges.push("kt06-pass");if(first){state.xp=(Number(state.xp)||0)+180;state.coins=(Number(state.coins)||0)+90}}
+ if(!Array.isArray(state.history))state.history=[];state.history.push({type:"KT06",score,status:passed?"TERAMPIL":"BELUM TERAMPIL",date:new Date().toISOString()});save();screen="result";render();
+}
+function retry(){index=0;answers=Array(10).fill(null);score=0;passed=false;screen="quiz";render()}function toggleLang(){lang=lang==="ms"?"en":"ms";state.lang=lang;save();render()}function dash(){location.href="../index.html"}function kp7(){location.href="../kp/kp07.html"}function full(){if(!document.fullscreenElement)document.documentElement.requestFullscreen?.();else document.exitFullscreen?.()}
+render();
+</script>
+</body>
+</html>
