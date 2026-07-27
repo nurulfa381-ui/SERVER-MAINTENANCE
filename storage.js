@@ -161,6 +161,49 @@ window.C05Storage = {
     return { ok: true, locked, record: student.officialMarks[key] };
   },
 
+  saveOfficialMarksBulk(ktNumber, entries) {
+    const kt = Number(ktNumber);
+    if (!Number.isInteger(kt) || kt < 1 || kt > 10 || !Array.isArray(entries)) {
+      return { ok: false, message: "Data markah tidak sah." };
+    }
+
+    const data = this.loadTeacherData();
+    const key = this.ktKey(kt);
+    let saved = 0;
+    let locked = 0;
+    let pending = 0;
+    let skipped = 0;
+
+    entries.forEach((entry) => {
+      const cleanId = this.normaliseId(entry.id);
+      const student = data.students[cleanId];
+      const rawScore = Number(entry.score);
+      if (!student || Number.isNaN(rawScore)) { skipped++; return; }
+
+      const existing = student.officialMarks?.[key];
+      if (existing?.locked && existing?.official) { skipped++; return; }
+
+      const mark = Math.max(0, Math.min(100, Math.round(rawScore)));
+      const isOfficial = mark >= 60;
+      student.officialMarks = student.officialMarks || {};
+      student.officialMarks[key] = {
+        score: mark,
+        official: isOfficial,
+        locked: isOfficial,
+        status: isOfficial ? "TERAMPIL" : "BELUM RASMI",
+        note: "",
+        updatedAt: new Date().toISOString(),
+        lockedAt: isOfficial ? new Date().toISOString() : null
+      };
+      student.updatedAt = new Date().toISOString();
+      saved++;
+      if (isOfficial) locked++; else pending++;
+    });
+
+    if (saved > 0) this.saveTeacherData(data);
+    return { ok: true, saved, locked, pending, skipped };
+  },
+
   emergencyUnlock(id, ktNumber) {
     const cleanId = this.normaliseId(id);
     const data = this.loadTeacherData();
