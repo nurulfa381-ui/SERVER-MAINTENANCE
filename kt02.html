@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0f172a">
+<title>KT02 · Mengenalpasti Penyelenggaraan Server</title>
+<style>
+:root{--ink:#111827;--muted:#475569;--line:#111827;--soft:#cbd5e1;--blue:#1d4ed8;--green:#15803d;--red:#b91c1c;--paper:#fff}
+*{box-sizing:border-box}body{margin:0;background:#e8eef5;color:var(--ink);font-family:Arial,Helvetica,sans-serif}
+button,input,textarea,select{font:inherit}button{cursor:pointer}.hidden{display:none!important}
+.shell{width:min(1100px,calc(100% - 20px));margin:auto;padding:14px 0 40px}
+.toolbar{position:sticky;top:8px;z-index:10;display:flex;justify-content:space-between;gap:12px;align-items:center;padding:12px 16px;margin-bottom:16px;border-radius:14px;background:#0f172a;color:#fff}
+.toolbar h1{margin:0;font-size:clamp(18px,2vw,26px)}.toolbar small{color:#cbd5e1}.toolbar button{padding:9px 13px;border:1px solid #ffffff45;border-radius:10px;background:#ffffff12;color:#fff;font-weight:700}
+.paper{width:min(900px,100%);margin:auto;background:var(--paper);box-shadow:0 18px 45px #0f172a24}
+.page{min-height:1120px;padding:24px 28px 34px}.official{border:1.5px solid var(--line)}
+.college{display:grid;grid-template-columns:230px 1fr;min-height:240px}.logo{display:grid;place-items:center;padding:18px;border-right:1.5px solid var(--line)}
+.logo img{width:min(185px,100%);max-height:175px;object-fit:contain}.fallback{display:none;text-align:center;font-weight:700;color:var(--muted)}
+.college-info{display:flex;flex-direction:column;justify-content:center;padding:24px 28px}.college-info h2{margin:0;font-size:27px}.college-info p{margin:9px 0 0;font-size:18px;line-height:1.5;font-weight:700}
+.doc-title{padding:18px;border-top:1.5px solid var(--line);text-align:center;font-size:29px;font-weight:800}
+table{width:100%;border-collapse:collapse}th,td{border:1.5px solid var(--line);padding:13px 12px;vertical-align:top}th{width:255px;background:#f8fafc;text-align:left}
+.code-row{display:grid;grid-template-columns:245px 1fr 240px}.code-row>div{min-height:70px;padding:13px;border:1.5px solid var(--line);border-top:0}
+.section{margin-top:28px}.section h2{margin:0 0 14px;font-size:23px}.box{padding:17px 19px;border:1.5px solid var(--line);background:#f8fafc;line-height:1.75}
+.progress{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;margin-bottom:18px;padding:14px 16px;border-radius:12px;background:#e2e8f0}
+.bar{height:12px;overflow:hidden;border-radius:999px;background:#cbd5e1}.bar i{display:block;width:0;height:100%;background:linear-gradient(90deg,var(--blue),var(--green));transition:.3s}
+.question{margin:18px 0;padding:18px 20px;border:1.5px solid var(--soft);border-radius:10px}.qtext{font-size:17px;font-weight:700;line-height:1.55}
+.options{display:grid;gap:10px}.option{display:flex;gap:10px;padding:12px 13px;border:1.5px solid var(--soft);border-radius:9px}.option:hover{border-color:var(--blue);background:#eff6ff}
+select,textarea,input[type=number]{width:100%;padding:11px;border:1.5px solid #94a3b8;border-radius:8px}textarea{resize:vertical;line-height:1.6}
+.assessor{margin-top:14px;padding:13px;background:#f8fafc;border:1px solid var(--soft);border-radius:9px}.assessor input{width:120px}
+.assessor input:disabled,.assessor input[readonly]{background:#e2e8f0;color:#64748b;cursor:not-allowed;pointer-events:none}.assessor-lock{margin:18px 0;padding:16px;border:2px solid #f59e0b;border-radius:10px;background:#fffbeb;text-align:center}.assessor-lock button{margin-top:10px}
+.submit,.actions{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:24px}
+.primary,.print,.danger{padding:13px 20px;border:0;border-radius:10px;color:#fff;font-weight:800}.primary{background:var(--blue)}.print{background:var(--green)}.danger{background:var(--red)}
+.result{margin-top:24px;padding:22px;border:2px solid var(--line)}.score{display:grid;place-items:center;width:145px;height:145px;margin:18px auto;border:12px solid var(--blue);border-radius:50%;font-size:34px;font-weight:800}.score.ok{border-color:var(--green)}.score.no{border-color:var(--red)}
+.status{padding:12px 18px;border:2px solid;text-align:center;font-size:24px;font-weight:800}.status.ok{border-color:var(--green);background:#f0fdf4;color:var(--green)}.status.no{border-color:var(--red);background:#fef2f2;color:var(--red)}
+.sign{display:grid;grid-template-columns:1fr 1fr;gap:48px;margin-top:54px}.line{margin-top:78px;border-top:1.5px solid var(--line);padding-top:8px;text-align:center;font-weight:700}
+.alert{margin:16px 0;padding:13px 15px;border:1px solid #f59e0b;border-radius:9px;background:#fffbeb;color:#92400e;font-weight:700}
+@media(max-width:760px){.toolbar{align-items:flex-start;flex-direction:column}.page{min-height:auto;padding:16px}.college{grid-template-columns:1fr}.logo{border-right:0;border-bottom:1.5px solid var(--line)}.college-info{text-align:center}.code-row{grid-template-columns:1fr}.sign{grid-template-columns:1fr}th{width:42%}}
+@media print{@page{size:A4 portrait;margin:10mm}body{background:#fff}.shell{width:100%;padding:0}.toolbar,.progress,.submit,.actions{display:none!important}.paper{width:100%;box-shadow:none}.page{min-height:auto;padding:0}.result{margin-top:0}}
+</style>
+</head>
+<body>
+<main id="app"></main>
+<script src="../storage.js"></script>
+<script>
+const DATA={
+ code:"IT-020-3:2013-C05/KT(2/10)",
+ title:"Mengenalpasti Penyelenggaraan Server",
+ program:"IT-020-3:2013 COMPUTER SYSTEM OPERATION",
+ level:"3",
+ competency:"IT-020-3:2013-C05 SERVER MAINTENANCE",
+ totalMarks:20,
+ passMark:60,
+ work:[
+  "ANALYSE SERVER MAINTENANCE JOB ORDER",
+  "CARRY OUT HARDWARE MAINTENANCE",
+  "PERFORM SERVER OPERATING SYSTEM MAINTENANCE",
+  "PREPARE SERVER MAINTENANCE REPORT"
+ ],
+ instructions:[
+  "Tuliskan nama dan nombor kad pengenalan calon pada ruangan yang disediakan.",
+  "Baca semua arahan dan soalan dengan teliti.",
+  "Jawab semua soalan dalam Bahagian A, B dan C.",
+  "Dilarang meniru atau mendapatkan bantuan tanpa kebenaran Pegawai Penilai.",
+  "Pastikan semua jawapan telah disemak sebelum dihantar."
+ ],
+ objective:[
+  {id:"a1",q:"Apakah tujuan utama penyelenggaraan pencegahan server?",o:["Membaiki server selepas rosak","Mencegah kerosakan sebelum berlaku","Menghapuskan semua data","Menukar server setiap bulan"],a:1},
+  {id:"a2",q:"Antara berikut, yang manakah contoh penyelenggaraan pembetulan?",o:["Mengganti cakera keras yang rosak","Memantau suhu server","Membersihkan habuk secara berkala","Menyemak log setiap hari"],a:0},
+  {id:"a3",q:"Apakah yang perlu dilakukan sebelum kerja penyelenggaraan bermula?",o:["Memadam log server","Mencabut semua kabel tanpa rekod","Menukar alamat IP","Menyemak arahan kerja dan backup"],a:3},
+  {id:"a4",q:"Mengapakah rekod penyelenggaraan penting?",o:["Untuk menghias laporan","Untuk menambah ruang storan","Untuk mengesan sejarah kerja dan perubahan","Untuk menukar sistem operasi"],a:2}
+ ],
+ matching:{
+  items:[
+   ["b1","Pencegahan","r1"],
+   ["b2","Pembetulan","r2"],
+   ["b3","Ramalan","r3"],
+   ["b4","Harian","r4"],
+   ["b5","Mingguan","r5"],
+   ["b6","Bulanan","r6"]
+  ],
+  choices:[
+   ["r1","Pemeriksaan berkala untuk mengelakkan kerosakan."],
+   ["r2","Tindakan membaiki selepas masalah dikenal pasti."],
+   ["r3","Menggunakan data prestasi untuk meramal kegagalan."],
+   ["r4","Semak log, amaran dan status backup."],
+   ["r5","Semak ruang storan, suhu dan penggunaan sumber."],
+   ["r6","Lakukan kemas kini, ujian pemulihan dan pemeriksaan fizikal."]
+  ]
+ },
+ short:[
+  {id:"c1",q:"Nyatakan dua tujuan penyelenggaraan server.",m:2,r:3},
+  {id:"c2",q:"Terangkan maksud penyelenggaraan pencegahan.",m:2,r:3},
+  {id:"c3",q:"Nyatakan dua semakan yang perlu dibuat sebelum penyelenggaraan.",m:2,r:3},
+  {id:"c4",q:"Huraikan empat perkara yang perlu direkodkan selepas penyelenggaraan.",m:4,r:6}
+ ]
+};
+const app=document.getElementById("app");
+if(!window.C05Storage)throw new Error("storage.js tidak ditemui");
+let state=C05Storage.load();
+if(!state.student){location.href="../index.html";throw new Error("Pelajar belum login")}
+const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
+const name=state.student.name||"",id=state.student.id||"";
+let resultReady=false,assessorUnlocked=false;
+function header(){
+ return `<section class="official"><div class="college"><div class="logo"><img src="../assets/logo-mentari.jpg" alt="Logo Kolej Kemahiran Mentari" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"><div class="fallback">LOGO KOLEJ KEMAHIRAN MENTARI</div></div><div class="college-info"><h2>KOLEJ KEMAHIRAN MENTARI (L02432)</h2><p>NO.22 & 24 GF, 1ST, 2ND & 3RD FLOOR<br>JALAN MERSING<br>86000 KLUANG<br>JOHOR</p></div></div><div class="doc-title">KERTAS TUGASAN (KT02)</div></section>
+ <table><tr><th>KOD DAN NAMA PROGRAM</th><td>${DATA.program}</td></tr><tr><th>TAHAP</th><td>${DATA.level}</td></tr><tr><th>KOD DAN TAJUK UNIT KOMPETENSI</th><td>${DATA.competency}</td></tr><tr><th>NO. DAN PENYATAAN AKTIVITI KERJA</th><td><ol>${DATA.work.map(x=>`<li>${x}</li>`).join("")}</ol></td></tr><tr><th>TAJUK</th><td>${DATA.title}</td></tr></table>
+ <div class="code-row"><div><b>NO. KOD</b></div><div>${DATA.code}</div><div><b>MUKA SURAT: 1<br>DRPD: 4</b></div></div>`;
+}
+function render(){
+ app.innerHTML=`<div class="shell"><header class="toolbar"><div><h1>📝 KERTAS TUGASAN KT02</h1><small>C05 – SERVER MAINTENANCE</small></div><div><button onclick="goDash()">← Dashboard</button><button onclick="full()">⛶ Skrin Penuh</button></div></header>
+ <article class="paper"><section class="page">${header()}<section class="section"><h2>MAKLUMAT PELATIH</h2><table><tr><th>NAMA PELATIH</th><td>${esc(name)}</td></tr><tr><th>NO. KAD PENGENALAN</th><td>${esc(id)}</td></tr><tr><th>TARIKH</th><td>__________________________</td></tr><tr><th>MARKAH</th><td>__________________________</td></tr></table></section>
+ <section class="section"><h2>ARAHAN KEPADA CALON</h2><div class="box"><ol>${DATA.instructions.map(x=>`<li>${x}</li>`).join("")}</ol></div><div class="alert">Jawab semua soalan Bahagian A, B dan C.</div></section></section>
+ <section class="page"><div class="progress"><div><b>Kemajuan Jawapan</b><div class="bar"><i id="bar"></i></div></div><b id="pct">0%</b></div>
+ <section class="section"><h2>BAHAGIAN A – SOALAN OBJEKTIF (4 MARKAH)</h2><div class="box">Pilih satu jawapan yang betul.</div>${DATA.objective.map((q,i)=>`<article class="question"><b>${i+1}. (1 Markah)</b><p class="qtext">${q.q}</p><div class="options">${q.o.map((o,j)=>`<label class="option"><input type="radio" name="${q.id}" value="${j}" onchange="progress()"><span>${String.fromCharCode(65+j)}. ${o}</span></label>`).join("")}</div></article>`).join("")}</section>
+ <section class="section"><h2>BAHAGIAN B – SOALAN PADANAN (6 MARKAH)</h2><div class="box">Padankan istilah dengan penerangan yang betul.</div>${DATA.matching.items.map((x,i)=>`<article class="question"><b>${i+1}. ${x[1]}</b><select id="${x[0]}" onchange="progress()"><option value="">-- Pilih jawapan --</option>${DATA.matching.choices.map(c=>`<option value="${c[0]}">${c[1]}</option>`).join("")}</select></article>`).join("")}</section></section>
+ <section class="page"><section class="section"><h2>BAHAGIAN C – SOALAN JAWAPAN PENDEK (10 MARKAH)</h2><div class="box">Jawab semua soalan. Masukkan markah penilaian kendiri untuk latihan. Markah ini bukan markah rasmi.</div><div class="assessor-lock"><b>📘 PENILAIAN KENDIRI / SELF-ASSESSMENT</b><br><span>Bahagian C ialah latihan ulang kaji. Pelajar boleh memasukkan markah kendiri tanpa PIN. Markah ini bukan markah rasmi.</span></div>${DATA.short.map((q,i)=>`<article class="question"><b>${i+1}. (${q.m} Markah)</b><p class="qtext">${q.q}</p><textarea id="${q.id}_a" rows="${q.r}" oninput="progress()" placeholder="Taip jawapan di sini..."></textarea><div class="assessor"><label><b>Markah Penilaian Kendiri (0–${q.m})</b></label><input id="${q.id}_m" type="number" min="0" max="${q.m}" value="0" oninput="limit(this,${q.m})"></div></article>`).join("")}</section><div class="submit"><button class="primary" onclick="submitKT()">HANTAR DAN KIRA MARKAH</button></div></section>
+ <section class="page hidden" id="result"></section></article></div>`;
+}
+function progress(){
+ let n=0,total=DATA.objective.length+DATA.matching.items.length+DATA.short.length;
+ DATA.objective.forEach(q=>{if(document.querySelector(`input[name="${q.id}"]:checked`))n++});
+ DATA.matching.items.forEach(x=>{if(document.getElementById(x[0]).value)n++});
+ DATA.short.forEach(q=>{if(document.getElementById(q.id+"_a").value.trim())n++});
+ let p=Math.round(n/total*100);document.getElementById("bar").style.width=p+"%";document.getElementById("pct").textContent=p+"%";
+}
+function limit(el,max){el.value=Math.max(0,Math.min(max,Number(el.value)||0))}
+function unlockAssessor(){ alert("PIN tidak diperlukan. Bahagian C kini menggunakan penilaian kendiri untuk latihan."); }
+function submitKT(){
+ if(!complete()){alert("Sila jawab semua soalan sebelum menghantar.");return}
+ let a=0,b=0,c=0;
+ DATA.objective.forEach(q=>{let s=document.querySelector(`input[name="${q.id}"]:checked`);if(Number(s.value)===q.a)a++});
+ DATA.matching.items.forEach(x=>{if(document.getElementById(x[0]).value===x[2])b++});
+ DATA.short.forEach(q=>c+=Math.max(0,Math.min(q.m,Number(document.getElementById(q.id+"_m").value)||0)));
+ let total=a+b+c,pct=Math.round(total/DATA.totalMarks*100),ok=pct>=DATA.passMark;
+ resultReady=true;
+ let r=document.getElementById("result");r.classList.remove("hidden");r.innerHTML=`${header()}<section class="result"><h2 style="text-align:center">KEPUTUSAN KERTAS TUGASAN KT02</h2><div class="score ${ok?"ok":"no"}">${pct}%</div><div class="status ${ok?"ok":"no"}">${ok?"TERAMPIL":"BELUM TERAMPIL"}</div><table style="margin-top:20px"><tr><th>NAMA PELATIH</th><td>${esc(name)}</td></tr><tr><th>NO. KAD PENGENALAN</th><td>${esc(id)}</td></tr><tr><th>BAHAGIAN A</th><td>${a}/4</td></tr><tr><th>BAHAGIAN B</th><td>${b}/6</td></tr><tr><th>BAHAGIAN C</th><td>${c}/10</td></tr><tr><th>JUMLAH MARKAH</th><td>${total}/20</td></tr><tr><th>KEPUTUSAN</th><td><b>${ok?"TERAMPIL":"BELUM TERAMPIL"}</b></td></tr><tr><th>TARIKH</th><td>__________________________</td></tr></table><div class="sign"><div><b>NAMA PEGAWAI PENILAI</b><div class="line">Nama Pegawai Penilai</div></div><div><b>PENGESAHAN</b><div class="line">Tandatangan Pegawai Penilai</div></div></div></section><div class="actions"><button class="print" onclick="printKT()">🖨️ CETAK / SIMPAN PDF</button>${ok?'<button class="primary" onclick="location.href=\'../index.html\'">KEMBALI KE DASHBOARD</button>':'<button class="danger" onclick="location.reload()">ULANG KT02</button>'}</div>`;r.scrollIntoView({behavior:"smooth"});
+ try{C05Storage.saveKTResult(state,2,pct);state.badges=Array.isArray(state.badges)?state.badges:[];if(ok&&!state.badges.includes("kt02-competent")){state.badges.push("kt02-competent");state.xp=(state.xp||0)+150;state.coins=(state.coins||0)+75;C05Storage.save(state)}}catch(e){console.warn("Keputusan KT02 dipaparkan tetapi rekod tidak dapat disimpan.",e)}
+}
+function printKT(){if(resultReady)window.print()}
+function goDash(){if(confirm("Kembali ke Dashboard? Jawapan yang belum dihantar tidak akan disimpan."))location.href="../index.html"}
+function full(){if(!document.fullscreenElement)document.documentElement.requestFullscreen?.();else document.exitFullscreen?.()}
+window.progress=progress;window.limit=limit;window.unlockAssessor=unlockAssessor;window.submitKT=submitKT;window.printKT=printKT;window.goDash=goDash;window.full=full;
+render();
+</script>
+</body>
+</html>

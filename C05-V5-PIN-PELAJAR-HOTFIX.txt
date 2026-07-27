@@ -1,0 +1,8 @@
+C05 V5 HOTFIX – PAPARAN PELAJAR TANPA PIN
+
+Perubahan:
+- KT01 hingga KT04 tidak lagi meminta PIN Pegawai Penilai untuk memaparkan keputusan latihan.
+- Bahagian C menggunakan Penilaian Kendiri bagi tujuan ulang kaji.
+- Markah latihan kekal berasingan daripada markah rasmi.
+- Markah rasmi masih hanya dimasukkan melalui Mod Guru.
+- PIN Mod Guru dan PIN Admin tidak berubah.
