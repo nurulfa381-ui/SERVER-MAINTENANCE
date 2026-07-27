@@ -3,13 +3,18 @@ let state=SHStorage.load();
 const t=k=>TXT[state.lang||"ms"][k],save=()=>SHStorage.save(state);
 const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[c]));
 const ktKey=n=>`kt${String(n).padStart(2,"0")}`;
-const officialRecord=n=>state.officialMarks?.[ktKey(n)]||null;
+const practiceScore=n=>Number(state.ktBestScores?.[ktKey(n)]??state.ktScores?.[ktKey(n)]??state.ktScores?.[String(n)]??0);
+const officialRecord=n=>{
+  const stored=state.officialMarks?.[ktKey(n)]||null;
+  if(stored)return stored;
+  const practice=practiceScore(n);
+  return practice>=60?{score:practice,official:true,locked:true,status:"TERAMPIL",source:"STUDENT_KT"}:null;
+};
 const officialScore=n=>Number(officialRecord(n)?.score||0);
-const practiceScore=n=>Number(state.ktBestScores?.[ktKey(n)]??state.ktScores?.[ktKey(n)]??0);
 const statusLabel=n=>{
   const r=officialRecord(n);
   if(r?.official&&r?.locked&&Number(r.score)>=60)return t("officialCompetent");
-  if(r)return t("officialPending");
+  if(practiceScore(n)>0)return state.lang==="en"?"NOT YET COMPETENT":"BELUM TERAMPIL";
   return t("officialNotAssessed");
 };
 const officialScores=()=>Array.from({length:10},(_,i)=>officialScore(i+1));
@@ -38,7 +43,8 @@ if(!state.badges.includes("first-login"))state.badges.push("first-login");
 save();renderDashboard();
 }
 function renderDashboard(){
-state=SHStorage.syncOfficialToState(state,false);save();
+state=SHStorage.load();
+state=SHStorage.syncOfficialToState(state,true);
 const courseComplete=pass()===10;
 const next=courseComplete?null:(M.find(x=>x.id===Math.min(Number(state.unlocked)||1,10))||M.find(x=>!state.completedKP.includes(x.id))||M[M.length-1]);
 app.innerHTML=`<div class="shell ${state.projector?"projector":""}">

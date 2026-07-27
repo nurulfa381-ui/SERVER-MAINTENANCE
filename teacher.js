@@ -1,3 +1,4 @@
+// C05 V5.1 HOTFIX: Paparan markah rasmi diselaraskan dengan storage.js
 const root = document.getElementById("teacherApp");
 const TEACHER_PIN = "0505";
 const ADMIN_PIN = "2019";
