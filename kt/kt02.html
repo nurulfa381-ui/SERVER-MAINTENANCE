@@ -125,6 +125,12 @@ function progress(){
 }
 function limit(el,max){el.value=Math.max(0,Math.min(max,Number(el.value)||0))}
 function unlockAssessor(){ alert("PIN tidak diperlukan. Bahagian C kini menggunakan penilaian kendiri untuk latihan."); }
+function complete(){
+  return DATA.objective.every(q=>document.querySelector(`input[name="${q.id}"]:checked`))
+    && DATA.matching.items.every(x=>document.getElementById(x[0]).value)
+    && DATA.short.every(q=>document.getElementById(q.id+"_a").value.trim());
+}
+
 function submitKT(){
  if(!complete()){alert("Sila jawab semua soalan sebelum menghantar.");return}
  let a=0,b=0;
