@@ -82,7 +82,7 @@ function render(){
  <section class="page"><div class="progress"><div><b>Kemajuan Jawapan</b><div class="bar"><i id="bar"></i></div></div><b id="pct">0%</b></div>
  <section class="section"><h2>BAHAGIAN A – SOALAN OBJEKTIF (2 MARKAH)</h2><div class="box">Pilih satu jawapan yang betul.</div>${DATA.objective.map((q,i)=>`<article class="question"><b>${i+1}. (1 Markah)</b><p class="qtext">${q.q}</p><div class="options">${q.o.map((o,j)=>`<label class="option"><input type="radio" name="${q.id}" value="${j}" onchange="progress()"><span>${String.fromCharCode(65+j)}. ${o}</span></label>`).join("")}</div></article>`).join("")}</section>
  <section class="section"><h2>BAHAGIAN B – SOALAN PADANAN (8 MARKAH)</h2><div class="box">Padankan sistem operasi server dengan keperluan minimum yang betul.</div>${DATA.matching.items.map((x,i)=>`<article class="question"><b>${i+1}. ${x[1]}</b><select id="${x[0]}" onchange="progress()"><option value="">-- Pilih jawapan --</option>${DATA.matching.choices.map(c=>`<option value="${c[0]}">${c[1]}</option>`).join("")}</select></article>`).join("")}</section></section>
- <section class="page"><section class="section"><h2>BAHAGIAN C – SOALAN JAWAPAN PENDEK (10 MARKAH)</h2><div class="box">Jawab semua soalan. Markah bahagian ini diberikan oleh Pegawai Penilai.</div><div class="assessor-lock"><b>🔒 MOD PEGAWAI PENILAI</b><br><span id="assessorStatus">Ruangan markah dikunci daripada pelajar.</span><br><button class="primary" onclick="unlockAssessor()">BUKA DENGAN PIN</button></div>${DATA.short.map((q,i)=>`<article class="question"><b>${i+1}. (${q.m} Markah)</b><p class="qtext">${q.q}</p><textarea id="${q.id}_a" rows="${q.r}" oninput="progress()" placeholder="Taip jawapan di sini..."></textarea><div class="assessor"><label><b>🔒 Markah Pegawai Penilai (0–${q.m})</b></label><input id="${q.id}_m" type="number" min="0" max="${q.m}" value="0" oninput="limit(this,${q.m})" disabled readonly tabindex="-1" aria-disabled="true"></div></article>`).join("")}</section><div class="submit"><button class="primary" onclick="submitKT()">HANTAR DAN KIRA MARKAH</button></div></section>
+ <section class="page"><section class="section"><h2>BAHAGIAN C – SOALAN JAWAPAN PENDEK (10 MARKAH)</h2><div class="box">Jawab semua soalan. Masukkan markah penilaian kendiri untuk latihan. Markah ini bukan markah rasmi.</div><div class="assessor-lock"><b>📘 PENILAIAN KENDIRI / SELF-ASSESSMENT</b><br><span>Bahagian C ialah latihan ulang kaji. Pelajar boleh memasukkan markah kendiri tanpa PIN. Markah ini bukan markah rasmi.</span></div>${DATA.short.map((q,i)=>`<article class="question"><b>${i+1}. (${q.m} Markah)</b><p class="qtext">${q.q}</p><textarea id="${q.id}_a" rows="${q.r}" oninput="progress()" placeholder="Taip jawapan di sini..."></textarea><div class="assessor"><label><b>Markah Penilaian Kendiri (0–${q.m})</b></label><input id="${q.id}_m" type="number" min="0" max="${q.m}" value="0" oninput="limit(this,${q.m})"></div></article>`).join("")}</section><div class="submit"><button class="primary" onclick="submitKT()">HANTAR DAN KIRA MARKAH</button></div></section>
  <section class="page hidden" id="result"></section></article></div>`;
 }
 function progress(){
@@ -93,13 +93,9 @@ function progress(){
  let p=Math.round(n/total*100);document.getElementById("bar").style.width=p+"%";document.getElementById("pct").textContent=p+"%";
 }
 function limit(el,max){el.value=Math.max(0,Math.min(max,Number(el.value)||0))}
-function unlockAssessor(){if(prompt("Masukkan PIN Pegawai Penilai:")==="2019"){assessorUnlocked=true;DATA.short.forEach(q=>{const el=document.getElementById(q.id+"_m");el.disabled=false;el.readOnly=false;el.tabIndex=0;el.setAttribute("aria-disabled","false");el.style.pointerEvents="auto"});document.getElementById("assessorStatus").textContent="✅ Mod Pegawai Penilai aktif.";alert("Mod Pegawai Penilai berjaya dibuka.")}else alert("PIN tidak sah.")}
-function complete(){
- return DATA.objective.every(q=>document.querySelector(`input[name="${q.id}"]:checked`))&&DATA.matching.items.every(x=>document.getElementById(x[0]).value)&&DATA.short.every(q=>document.getElementById(q.id+"_a").value.trim());
-}
+function unlockAssessor(){ alert("PIN tidak diperlukan. Bahagian C kini menggunakan penilaian kendiri untuk latihan."); }
 function submitKT(){
  if(!complete()){alert("Sila jawab semua soalan sebelum menghantar.");return}
- if(!assessorUnlocked){alert("Markah Bahagian C hanya boleh dimasukkan oleh Pegawai Penilai. Buka Mod Pegawai Penilai dahulu.");return}
  let a=0,b=0,c=0;
  DATA.objective.forEach(q=>{let s=document.querySelector(`input[name="${q.id}"]:checked`);if(Number(s.value)===q.a)a++});
  DATA.matching.items.forEach(x=>{if(document.getElementById(x[0]).value===x[2])b++});

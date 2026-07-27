@@ -280,8 +280,8 @@ function render(){
       <section class="page">
         <section class="section">
           <h2>BAHAGIAN C – SOALAN JAWAPAN PENDEK (10 MARKAH)</h2>
-          <div class="box">Jawab semua soalan. Markah bahagian ini diberikan oleh Pegawai Penilai.</div>
-          <div class="assessor-lock"><b>🔒 MOD PEGAWAI PENILAI</b><br><span id="assessorStatus">Ruangan markah dikunci daripada pelajar.</span><br><button class="primary" onclick="unlockAssessor()">BUKA DENGAN PIN</button></div>
+          <div class="box">Jawab semua soalan. Masukkan markah penilaian kendiri untuk latihan. Markah ini bukan markah rasmi.</div>
+          <div class="assessor-lock"><b>📘 PENILAIAN KENDIRI / SELF-ASSESSMENT</b><br><span>Bahagian C ialah latihan ulang kaji. Pelajar boleh memasukkan markah kendiri tanpa PIN. Markah ini bukan markah rasmi.</span></div>
 
           ${DATA.short.map((q,i)=>`
             <article class="question">
@@ -296,7 +296,7 @@ function render(){
               ></textarea>
 
               <div class="assessor">
-                <label><b>🔒 Markah Pegawai Penilai (0–${q.m})</b></label>
+                <label><b>Markah Penilaian Kendiri (0–${q.m})</b></label>
                 <input
                   id="${q.id}_m"
                   type="number"
@@ -304,7 +304,7 @@ function render(){
                   max="${q.m}"
                   value="0"
                   oninput="limit(this,${q.m})"
-                  disabled readonly tabindex="-1" aria-disabled="true"
+                 
                 >
               </div>
             </article>
@@ -346,14 +346,7 @@ function limit(el,max){
   el.value=Math.max(0,Math.min(max,Number(el.value)||0));
 }
 
-function unlockAssessor(){
-  if(prompt("Masukkan PIN Pegawai Penilai:")==="2019"){
-    assessorUnlocked=true;
-    DATA.short.forEach(q=>{const el=document.getElementById(q.id+"_m");el.disabled=false;el.readOnly=false;el.tabIndex=0;el.setAttribute("aria-disabled","false");el.style.pointerEvents="auto"});
-    document.getElementById("assessorStatus").textContent="✅ Mod Pegawai Penilai aktif.";
-    alert("Mod Pegawai Penilai berjaya dibuka.");
-  }else alert("PIN tidak sah.");
-}
+function unlockAssessor(){ alert("PIN tidak diperlukan. Bahagian C kini menggunakan penilaian kendiri untuk latihan."); }
 
 function complete(){
   return DATA.objective.every(q=>document.querySelector(`input[name="${q.id}"]:checked`))
@@ -364,10 +357,6 @@ function complete(){
 function submitKT(){
   if(!complete()){
     alert("Sila jawab semua soalan sebelum menghantar.");
-    return;
-  }
-  if(!assessorUnlocked){
-    alert("Markah Bahagian C hanya boleh dimasukkan oleh Pegawai Penilai. Buka Mod Pegawai Penilai dahulu.");
     return;
   }
 
