@@ -280,8 +280,8 @@ function render(){
       <section class="page">
         <section class="section">
           <h2>BAHAGIAN C – SOALAN JAWAPAN PENDEK (10 MARKAH)</h2>
-          <div class="box">Jawab semua soalan. Masukkan markah penilaian kendiri untuk latihan. Markah ini bukan markah rasmi.</div>
-          <div class="assessor-lock"><b>📘 PENILAIAN KENDIRI / SELF-ASSESSMENT</b><br><span>Bahagian C ialah latihan ulang kaji. Pelajar boleh memasukkan markah kendiri tanpa PIN. Markah ini bukan markah rasmi.</span></div>
+          <div class="box">Jawab semua soalan. Bahagian C tidak diberi markah oleh pelajar dan tidak dinilai secara automatik.</div>
+          <div class="assessor-lock"><b>📘 PENILAIAN KENDIRI / SELF-ASSESSMENT</b><br><span>Bahagian C ialah latihan ulang kaji. Pelajar hanya menaip jawapan; tiada ruangan markah untuk pelajar.</span></div>
 
           ${DATA.short.map((q,i)=>`
             <article class="question">
@@ -295,18 +295,7 @@ function render(){
                 placeholder="Taip jawapan di sini..."
               ></textarea>
 
-              <div class="assessor">
-                <label><b>Markah Penilaian Kendiri (0–${q.m})</b></label>
-                <input
-                  id="${q.id}_m"
-                  type="number"
-                  min="0"
-                  max="${q.m}"
-                  value="0"
-                  oninput="limit(this,${q.m})"
-                 
-                >
-              </div>
+              
             </article>
           `).join("")}
         </section>
@@ -362,7 +351,6 @@ function submitKT(){
 
   let a=0;
   let b=0;
-  let c=0;
 
   DATA.objective.forEach(q=>{
     const s=document.querySelector(`input[name="${q.id}"]:checked`);
@@ -373,13 +361,10 @@ function submitKT(){
     if(document.getElementById(x[0]).value===x[2])b++;
   });
 
-  DATA.short.forEach(q=>{
-    c+=Math.max(0,Math.min(q.m,Number(document.getElementById(q.id+"_m").value)||0));
-  });
-
-  const total=a+b+c;
-  const pct=Math.round(total/DATA.totalMarks*100);
-  const ok=pct>=DATA.passMark;
+  const total=a+b;
+  const autoTotal=DATA.objective.length+DATA.matching.items.length;
+  const pct=Math.round(total/autoTotal*100);
+  const ok=true;
 
   resultReady=true;
 
@@ -393,16 +378,16 @@ function submitKT(){
       <h2 style="text-align:center">KEPUTUSAN KERTAS TUGASAN KT03</h2>
 
       <div class="score ${ok?"ok":"no"}">${pct}%</div>
-      <div class="status ${ok?"ok":"no"}">${ok?"TERAMPIL":"BELUM TERAMPIL"}</div>
+      <div class="status ${ok?"ok":"no"}">LATIHAN SELESAI</div>
 
       <table style="margin-top:20px">
         <tr><th>NAMA PELATIH</th><td>${esc(name)}</td></tr>
         <tr><th>NO. KAD PENGENALAN</th><td>${esc(id)}</td></tr>
         <tr><th>BAHAGIAN A</th><td>${a}/4</td></tr>
         <tr><th>BAHAGIAN B</th><td>${b}/6</td></tr>
-        <tr><th>BAHAGIAN C</th><td>${c}/10</td></tr>
-        <tr><th>JUMLAH MARKAH</th><td>${total}/20</td></tr>
-        <tr><th>KEPUTUSAN</th><td><b>${ok?"TERAMPIL":"BELUM TERAMPIL"}</b></td></tr>
+        <tr><th>BAHAGIAN C</th><td>Tidak dinilai secara automatik</td></tr>
+        <tr><th>JUMLAH MARKAH</th><td>${total}/${autoTotal}</td></tr>
+        <tr><th>KEPUTUSAN</th><td><b>LATIHAN SELESAI</b></td></tr>
         <tr><th>TARIKH</th><td>__________________________</td></tr>
       </table>
 
@@ -431,13 +416,6 @@ function submitKT(){
   r.scrollIntoView({behavior:"smooth"});
   try{
     C05Storage.saveKTResult(state,3,pct);
-    state.badges=Array.isArray(state.badges)?state.badges:[];
-    if(ok&&!state.badges.includes("kt03-competent")){
-      state.badges.push("kt03-competent");
-      state.xp=(state.xp||0)+150;
-      state.coins=(state.coins||0)+75;
-      C05Storage.save(state);
-    }
   }catch(e){
     console.warn("Keputusan KT03 dipaparkan tetapi rekod tidak dapat disimpan.",e);
   }
@@ -462,7 +440,7 @@ function full(){
 }
 
 window.progress=progress;
-window.limit=limit;
+
 window.unlockAssessor=unlockAssessor;
 window.submitKT=submitKT;
 window.printKT=printKT;
