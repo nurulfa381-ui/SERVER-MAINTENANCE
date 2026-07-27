@@ -344,83 +344,20 @@ function complete(){
 }
 
 function submitKT(){
-  if(!complete()){
-    alert("Sila jawab semua soalan sebelum menghantar.");
-    return;
-  }
-
-  let a=0;
-  let b=0;
-
-  DATA.objective.forEach(q=>{
-    const s=document.querySelector(`input[name="${q.id}"]:checked`);
-    if(Number(s.value)===q.a)a++;
-  });
-
-  DATA.matching.items.forEach(x=>{
-    if(document.getElementById(x[0]).value===x[2])b++;
-  });
-
-  const total=a+b;
-  const autoTotal=DATA.objective.length+DATA.matching.items.length;
-  const pct=Math.round(total/autoTotal*100);
-  const ok=true;
-
-  resultReady=true;
-
-  const r=document.getElementById("result");
-  r.classList.remove("hidden");
-
-  r.innerHTML=`
-    ${header()}
-
-    <section class="result">
-      <h2 style="text-align:center">KEPUTUSAN KERTAS TUGASAN KT03</h2>
-
-      <div class="score ${ok?"ok":"no"}">${pct}%</div>
-      <div class="status ${ok?"ok":"no"}">LATIHAN SELESAI</div>
-
-      <table style="margin-top:20px">
-        <tr><th>NAMA PELATIH</th><td>${esc(name)}</td></tr>
-        <tr><th>NO. KAD PENGENALAN</th><td>${esc(id)}</td></tr>
-        <tr><th>BAHAGIAN A</th><td>${a}/4</td></tr>
-        <tr><th>BAHAGIAN B</th><td>${b}/6</td></tr>
-        <tr><th>BAHAGIAN C</th><td>Tidak dinilai secara automatik</td></tr>
-        <tr><th>JUMLAH MARKAH</th><td>${total}/${autoTotal}</td></tr>
-        <tr><th>KEPUTUSAN</th><td><b>LATIHAN SELESAI</b></td></tr>
-        <tr><th>TARIKH</th><td>__________________________</td></tr>
-      </table>
-
-      <div class="sign">
-        <div>
-          <b>NAMA PEGAWAI PENILAI</b>
-          <div class="line">Nama Pegawai Penilai</div>
-        </div>
-
-        <div>
-          <b>PENGESAHAN</b>
-          <div class="line">Tandatangan Pegawai Penilai</div>
-        </div>
-      </div>
-    </section>
-
-    <div class="actions">
-      <button class="print" onclick="printKT()">🖨️ CETAK / SIMPAN PDF</button>
-      ${
-        ok
-          ? '<button class="primary" onclick="location.href=\'../index.html\'">KEMBALI KE DASHBOARD</button>'
-          : '<button class="danger" onclick="location.reload()">ULANG KT03</button>'
-      }
-    </div>`;
-
-  r.scrollIntoView({behavior:"smooth"});
-  try{
-    C05Storage.saveKTResult(state,3,pct);
-  }catch(e){
-    console.warn("Keputusan KT03 dipaparkan tetapi rekod tidak dapat disimpan.",e);
-  }
+ if(!complete()){alert("Sila jawab semua soalan sebelum menghantar.");return}
+ let a=0,b=0;
+ DATA.objective.forEach(q=>{const selected=document.querySelector(`input[name="${q.id}"]:checked`);if(selected&&Number(selected.value)===q.a)a++;});
+ DATA.matching.items.forEach(x=>{if(document.getElementById(x[0]).value===x[2])b++;});
+ const total=a+b, autoTotal=DATA.objective.length+DATA.matching.items.length;
+ const pct=Math.round(total/autoTotal*100), ok=pct>=60;
+ state=C05Storage.saveKTResult(state,3,pct);
+ resultReady=true;
+ const statusText=ok?"TERAMPIL":"BELUM TERAMPIL";
+ const action=ok?'<button class="primary" onclick="location.href='../index.html'">KEMBALI KE DASHBOARD</button>':'<button class="danger" onclick="location.reload()">ULANG KT03</button>';
+ const r=document.getElementById("result"); r.classList.remove("hidden");
+ r.innerHTML=`${header()}<section class="result"><h2 style="text-align:center">KEPUTUSAN KERTAS TUGASAN KT03</h2><div class="score ${ok?"ok":"no"}">${pct}%</div><div class="status ${ok?"ok":"no"}">${statusText}</div><table style="margin-top:20px"><tr><th>NAMA PELATIH</th><td>${esc(name)}</td></tr><tr><th>NO. KAD PENGENALAN</th><td>${esc(id)}</td></tr><tr><th>BAHAGIAN A</th><td>${a}/4</td></tr><tr><th>BAHAGIAN B</th><td>${b}/6</td></tr><tr><th>BAHAGIAN C</th><td>Jawapan disimpan untuk semakan guru</td></tr><tr><th>JUMLAH MARKAH</th><td>${total}/${autoTotal}</td></tr><tr><th>KEPUTUSAN</th><td><b>${statusText}</b></td></tr><tr><th>TARIKH</th><td>__________________________</td></tr></table></section><div class="actions"><button class="print" onclick="printKT()">🖨️ CETAK / SIMPAN PDF</button>${action}</div>`;
+ r.scrollIntoView({behavior:"smooth"});
 }
-
 function printKT(){
   if(resultReady)window.print();
 }

@@ -170,17 +170,19 @@ function complete(){
 }
 
 function submitKT(){
-if(!complete()){alert(tr("missing"));return}
-let a=0,b=0;
-DATA.objective.forEach(q=>{let s=document.querySelector(`input[name="${q.id}"]:checked`);if(Number(s.value)===q.a)a++});
-DATA.matching.items.forEach(x=>{if(document.getElementById(x[0]).value===x[2])b++});
-const total=a+b;
- const autoTotal=DATA.objective.length+DATA.matching.items.length;
- const pct=Math.round(total/autoTotal*100);
- const ok=true;
-resultReady=true;
-let r=document.getElementById("result");r.classList.remove("hidden");r.innerHTML=`${header()}<section class="result"><h2 style="text-align:center">${tr("result")}</h2><div class="score ${ok?"ok":"no"}">${pct}%</div><div class="status ${ok?"ok":"no"}">${lang==="ms"?"LATIHAN SELESAI":"PRACTICE COMPLETED"}</div><table style="margin-top:20px"><tr><th>${tr("name")}</th><td>${esc(name)}</td></tr><tr><th>${tr("id")}</th><td>${esc(studentId)}</td></tr><tr><th>${lang==="ms"?"BAHAGIAN A":"SECTION A"}</th><td>${a}/10</td></tr><tr><th>${lang==="ms"?"BAHAGIAN B":"SECTION B"}</th><td>${b}/5</td></tr><tr><th>${lang==="ms"?"BAHAGIAN C":"SECTION C"}</th><td>${lang==="ms"?"Tidak dinilai secara automatik":"Not graded automatically"}</td></tr><tr><th>${lang==="ms"?"JUMLAH MARKAH":"TOTAL SCORE"}</th><td>${total}/${autoTotal}</td></tr><tr><th>${lang==="ms"?"KEPUTUSAN":"RESULT"}</th><td><b>${lang==="ms"?"LATIHAN SELESAI":"PRACTICE COMPLETED"}</b></td></tr><tr><th>${tr("date")}</th><td>__________________________</td></tr></table><div class="sign"><div><b>${lang==="ms"?"NAMA PEGAWAI PENILAI":"ASSESSOR NAME"}</b><div class="line">${lang==="ms"?"Nama Pegawai Penilai":"Assessor Name"}</div></div><div><b>${lang==="ms"?"PENGESAHAN":"VERIFICATION"}</b><div class="line">${lang==="ms"?"Tandatangan Pegawai Penilai":"Assessor Signature"}</div></div></div></section><div class="actions"><button class="print" onclick="printKT()">🖨️ ${tr("print")}</button>${ok?`<button class="primary" onclick="location.href='../index.html'">${tr("back")}</button>`:`<button class="danger" onclick="location.reload()">${tr("repeat")}</button>`}</div>`;r.scrollIntoView({behavior:"smooth"});
-try{C05Storage.saveKTResult(state,4,pct)}catch(e){console.warn("Keputusan KT04 dipaparkan tetapi rekod tidak dapat disimpan.",e)}
+ if(!complete()){alert(tr("missing"));return}
+ let a=0,b=0;
+ DATA.objective.forEach(q=>{const selected=document.querySelector(`input[name="${q.id}"]:checked`);if(selected&&Number(selected.value)===q.a)a++;});
+ DATA.matching.items.forEach(x=>{if(document.getElementById(x[0]).value===x[2])b++;});
+ const total=a+b, autoTotal=DATA.objective.length+DATA.matching.items.length;
+ const pct=Math.round(total/autoTotal*100), ok=pct>=60;
+ state=C05Storage.saveKTResult(state,4,pct);
+ resultReady=true;
+ const statusText=ok?(lang==="ms"?"TERAMPIL":"COMPETENT"):(lang==="ms"?"BELUM TERAMPIL":"NOT YET COMPETENT");
+ const action=ok?`<button class="primary" onclick="location.href='../index.html'">${tr("back")}</button>`:`<button class="danger" onclick="location.reload()">${tr("repeat")}</button>`;
+ const r=document.getElementById("result"); r.classList.remove("hidden");
+ r.innerHTML=`${header()}<section class="result"><h2 style="text-align:center">${tr("result")}</h2><div class="score ${ok?"ok":"no"}">${pct}%</div><div class="status ${ok?"ok":"no"}">${statusText}</div><table style="margin-top:20px"><tr><th>${tr("name")}</th><td>${esc(name)}</td></tr><tr><th>${tr("id")}</th><td>${esc(studentId)}</td></tr><tr><th>${lang==="ms"?"BAHAGIAN A":"SECTION A"}</th><td>${a}/10</td></tr><tr><th>${lang==="ms"?"BAHAGIAN B":"SECTION B"}</th><td>${b}/5</td></tr><tr><th>${lang==="ms"?"BAHAGIAN C":"SECTION C"}</th><td>${lang==="ms"?"Jawapan disimpan untuk semakan guru":"Answers saved for teacher review"}</td></tr><tr><th>${lang==="ms"?"JUMLAH MARKAH":"TOTAL SCORE"}</th><td>${total}/${autoTotal}</td></tr><tr><th>${lang==="ms"?"KEPUTUSAN":"RESULT"}</th><td><b>${statusText}</b></td></tr><tr><th>${tr("date")}</th><td>__________________________</td></tr></table></section><div class="actions"><button class="print" onclick="printKT()">🖨️ ${tr("print")}</button>${action}</div>`;
+ r.scrollIntoView({behavior:"smooth"});
 }
 function toggleLang(){lang=lang==="ms"?"en":"ms";state.lang=lang;C05Storage.save(state);render()}
 function printKT(){if(resultReady)window.print()}
