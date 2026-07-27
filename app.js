@@ -2,7 +2,16 @@ const app=document.getElementById("app"),TXT=SH_TEXT,M=SH_MISSIONS,B=SH_BADGES;
 let state=SHStorage.load();
 const t=k=>TXT[state.lang||"ms"][k],save=()=>SHStorage.save(state);
 const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[c]));
-const officialScore=n=>Number(state.officialMarks?.[`kt${String(n).padStart(2,"0")}`]?.score||0);
+const ktKey=n=>`kt${String(n).padStart(2,"0")}`;
+const officialRecord=n=>state.officialMarks?.[ktKey(n)]||null;
+const officialScore=n=>Number(officialRecord(n)?.score||0);
+const practiceScore=n=>Number(state.ktBestScores?.[ktKey(n)]??state.ktScores?.[ktKey(n)]??0);
+const statusLabel=n=>{
+  const r=officialRecord(n);
+  if(r?.official&&r?.locked&&Number(r.score)>=60)return t("officialCompetent");
+  if(r)return t("officialPending");
+  return t("officialNotAssessed");
+};
 const officialScores=()=>Array.from({length:10},(_,i)=>officialScore(i+1));
 const pass=()=>state.completedKT?.length||0;
 const avg=()=>{const v=officialScores().filter(x=>x>=60);return v.length?Math.round(v.reduce((a,b)=>a+b,0)/v.length):0};
@@ -44,7 +53,7 @@ app.innerHTML=`<div class="shell ${state.projector?"projector":""}">
 <button onclick="SHStorage.exportJSON(state)">💾 Backup JSON</button>
 </div>
 </article></section>
-<section class="card missions"><h2>${t("missionMap")}</h2><div class="mission-list">${M.map((m,i)=>{const open=m.id<=state.unlocked,done=state.completedKP.includes(m.id);return `<article class="${open?"open":"locked"} ${done?"done":""}"><div class="num">${done?"✓":String(m.id).padStart(2,"0")}</div><div class="icon">${m.icon}</div><div><small>KP${String(m.id).padStart(2,"0")}</small><h3>${m[state.lang]}</h3></div><span>${done?t("completed"):open?t("available"):t("locked")}</span><button ${open?"":"disabled"} onclick="openMission(${m.id})">${t("start")}</button></article>${i<M.length-1?'<div class="line"></div>':""}`}).join("")}</div></section>
+<section class="card missions"><h2>${t("missionMap")}</h2><p class="mission-help">${t("officialUnlockNotice")}</p><div class="mission-list">${M.map((m,i)=>{const open=m.id<=state.unlocked,done=state.completedKP.includes(m.id),practice=practiceScore(m.id),official=officialRecord(m.id),officialValue=official?`${Number(official.score)}%`:"—",competent=Boolean(official?.official&&official?.locked&&Number(official.score)>=60);return `<article class="${open?"open":"locked"} ${done?"done":""}"><div class="num">${done?"✓":String(m.id).padStart(2,"0")}</div><div class="icon">${m.icon}</div><div class="mission-main"><small>KP${String(m.id).padStart(2,"0")} · KT${String(m.id).padStart(2,"0")}</small><h3>${m[state.lang]}</h3><div class="score-strip"><span><small>${t("practiceScore")}</small><b>${practice?`${practice}%`:"—"}</b></span><span><small>${t("officialScore")}</small><b>${officialValue}</b></span><span class="status-pill ${competent?"competent":official?"pending":"empty"}">${statusLabel(m.id)}</span></div></div><span class="mission-access">${done?t("completed"):open?t("available"):t("locked")}</span><button ${open?"":"disabled"} onclick="openMission(${m.id})">${open?t("start"):"🔒"}</button></article>${i<M.length-1?'<div class="line"></div>':""}`}).join("")}</div></section>
 <section class="bottom"><article class="card badges"><h2>${t("badges")}</h2><div class="badge-grid">${B.map(b=>`<article class="${state.badges.includes(b.id)?"earned":"locked"}"><span>${b.icon}</span><small>${b[state.lang]}</small></article>`).join("")}</div></article><article class="card achievements"><h2>${t("achievements")}</h2><div><span>📘</span><b>${state.completedKP.length}/10 KP</b></div><div><span>✅</span><b>${pass()}/10 KT</b></div><div><span>🏆</span><b>${rank()}</b></div></article></section>
 </div>`;
 }
