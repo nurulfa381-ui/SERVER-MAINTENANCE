@@ -1,14 +1,14 @@
 window.C05Storage = {
   key: "c05ServerMaintenanceState",
-  teacherKey: "c05TeacherAssessmentV5",
+  teacherKey: "c05TeacherAssessmentV6",
 
   defaults() {
     return {
+      version: 6,
       lang: "ms",
       student: null,
       xp: 0,
       coins: 0,
-      level: 1,
       unlockedKP: 1,
       unlocked: 1,
       completedKP: [],
@@ -19,12 +19,13 @@ window.C05Storage = {
       officialMarks: {},
       badges: [],
       projector: false,
-      audio: true
+      audio: true,
+      courseCompleted: false
     };
   },
 
   teacherDefaults() {
-    return { version: 5, students: {}, updatedAt: null };
+    return { version: 6, students: {}, updatedAt: null };
   },
 
   normaliseId(value) {
@@ -35,24 +36,26 @@ window.C05Storage = {
     return `kt${String(Number(number)).padStart(2, "0")}`;
   },
 
+  normaliseState(saved = {}) {
+    const base = this.defaults();
+    return {
+      ...base,
+      ...saved,
+      completedKP: Array.isArray(saved.completedKP) ? saved.completedKP : [],
+      completedKT: Array.isArray(saved.completedKT) ? saved.completedKT : [],
+      badges: Array.isArray(saved.badges) ? saved.badges : [],
+      ktScores: saved.ktScores && typeof saved.ktScores === "object" ? saved.ktScores : {},
+      ktBestScores: saved.ktBestScores && typeof saved.ktBestScores === "object" ? saved.ktBestScores : {},
+      ktAttempts: saved.ktAttempts && typeof saved.ktAttempts === "object" ? saved.ktAttempts : {},
+      officialMarks: saved.officialMarks && typeof saved.officialMarks === "object" ? saved.officialMarks : {}
+    };
+  },
+
   load() {
     try {
       const raw = localStorage.getItem(this.key);
-      if (!raw) return this.defaults();
-      const saved = JSON.parse(raw);
-      const base = this.defaults();
-      const state = {
-        ...base,
-        ...saved,
-        completedKP: Array.isArray(saved.completedKP) ? saved.completedKP : [],
-        completedKT: Array.isArray(saved.completedKT) ? saved.completedKT : [],
-        badges: Array.isArray(saved.badges) ? saved.badges : [],
-        ktScores: saved.ktScores && typeof saved.ktScores === "object" ? saved.ktScores : {},
-        ktBestScores: saved.ktBestScores && typeof saved.ktBestScores === "object" ? saved.ktBestScores : {},
-        ktAttempts: saved.ktAttempts && typeof saved.ktAttempts === "object" ? saved.ktAttempts : {},
-        officialMarks: saved.officialMarks && typeof saved.officialMarks === "object" ? saved.officialMarks : {}
-      };
-      return this.syncOfficialToState(state, false);
+      const state = this.normaliseState(raw ? JSON.parse(raw) : {});
+      return this.recalculate(state, false);
     } catch (error) {
       console.error("Gagal membaca data C05:", error);
       return this.defaults();
@@ -77,8 +80,7 @@ window.C05Storage = {
   loadTeacherData() {
     try {
       const raw = localStorage.getItem(this.teacherKey);
-      if (!raw) return this.teacherDefaults();
-      const saved = JSON.parse(raw);
+      const saved = raw ? JSON.parse(raw) : {};
       return {
         ...this.teacherDefaults(),
         ...saved,
@@ -104,7 +106,7 @@ window.C05Storage = {
   registerStudent({ name, id, className = "" }) {
     const cleanId = this.normaliseId(id);
     const cleanName = String(name || "").trim();
-    if (!cleanName || !cleanId) return { ok: false, message: "Nama dan ID pelajar diperlukan." };
+    if (!cleanName || !cleanId) return { ok:false, message:"Nama dan ID pelajar diperlukan." };
 
     const data = this.loadTeacherData();
     const existing = data.students[cleanId] || {};
@@ -117,7 +119,29 @@ window.C05Storage = {
       updatedAt: new Date().toISOString()
     };
     this.saveTeacherData(data);
-    return { ok: true, student: data.students[cleanId] };
+    return { ok:true, student:data.students[cleanId] };
+  },
+
+  ensureStudentRecord(state) {
+    if (!state?.student?.id) return null;
+    const id = this.normaliseId(state.student.id);
+    const data = this.loadTeacherData();
+    const existing = data.students[id] || {};
+    data.students[id] = {
+      name: String(state.student.name || existing.name || "").trim(),
+      id,
+      className: existing.className || "",
+      officialMarks: existing.officialMarks && typeof existing.officialMarks === "object" ? existing.officialMarks : {},
+      createdAt: existing.createdAt || new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    this.saveTeacherData(data);
+    return data.students[id];
+  },
+
+  getStudentOfficial(id) {
+    const cleanId = this.normaliseId(id);
+    return this.loadTeacherData().students[cleanId] || null;
   },
 
   deleteStudent(id) {
@@ -128,208 +152,115 @@ window.C05Storage = {
     return this.saveTeacherData(data);
   },
 
-  saveOfficialMark(id, ktNumber, score, note = "") {
-    const cleanId = this.normaliseId(id);
-    const kt = Number(ktNumber);
-    const mark = Math.max(0, Math.min(100, Math.round(Number(score))));
-    if (!cleanId || !Number.isInteger(kt) || kt < 1 || kt > 10 || Number.isNaN(mark)) {
-      return { ok: false, message: "Maklumat markah tidak sah." };
-    }
-
-    const data = this.loadTeacherData();
-    const student = data.students[cleanId];
-    if (!student) return { ok: false, message: "Pelajar belum didaftarkan." };
-
-    const key = this.ktKey(kt);
-    const existing = student.officialMarks?.[key];
-    if (existing?.locked) {
-      return { ok: false, locked: true, message: `${key.toUpperCase()} telah rasmi dan dikunci.` };
-    }
-
-    const locked = mark >= 60;
-    student.officialMarks[key] = {
-      score: mark,
-      official: locked,
-      locked,
-      status: locked ? "TERAMPIL" : "BELUM RASMI",
-      note: String(note || "").trim(),
-      updatedAt: new Date().toISOString(),
-      lockedAt: locked ? new Date().toISOString() : null
-    };
-    student.updatedAt = new Date().toISOString();
-    this.saveTeacherData(data);
-    return { ok: true, locked, record: student.officialMarks[key] };
-  },
-
-  saveOfficialMarksBulk(ktNumber, entries) {
-    const kt = Number(ktNumber);
-    if (!Number.isInteger(kt) || kt < 1 || kt > 10 || !Array.isArray(entries)) {
-      return { ok: false, message: "Data markah tidak sah." };
-    }
-
-    const data = this.loadTeacherData();
-    const key = this.ktKey(kt);
-    let saved = 0;
-    let locked = 0;
-    let pending = 0;
-    let skipped = 0;
-
-    entries.forEach((entry) => {
-      const cleanId = this.normaliseId(entry.id);
-      const student = data.students[cleanId];
-      const rawScore = Number(entry.score);
-      if (!student || Number.isNaN(rawScore)) { skipped++; return; }
-
-      const existing = student.officialMarks?.[key];
-      if (existing?.locked && existing?.official) { skipped++; return; }
-
-      const mark = Math.max(0, Math.min(100, Math.round(rawScore)));
-      const isOfficial = mark >= 60;
-      student.officialMarks = student.officialMarks || {};
-      student.officialMarks[key] = {
-        score: mark,
-        official: isOfficial,
-        locked: isOfficial,
-        status: isOfficial ? "TERAMPIL" : "BELUM RASMI",
-        note: "",
-        updatedAt: new Date().toISOString(),
-        lockedAt: isOfficial ? new Date().toISOString() : null
-      };
-      student.updatedAt = new Date().toISOString();
-      saved++;
-      if (isOfficial) locked++; else pending++;
-    });
-
-    if (saved > 0) this.saveTeacherData(data);
-    return { ok: true, saved, locked, pending, skipped };
-  },
-
-  emergencyUnlock(id, ktNumber) {
-    const cleanId = this.normaliseId(id);
-    const data = this.loadTeacherData();
+  getPracticeScore(state, ktNumber) {
     const key = this.ktKey(ktNumber);
-    const record = data.students?.[cleanId]?.officialMarks?.[key];
-    if (!record) return { ok: false, message: "Rekod tidak ditemui." };
-    record.locked = false;
-    record.official = false;
-    record.status = "DIBUKA SEMULA";
-    record.unlockedAt = new Date().toISOString();
-    this.saveTeacherData(data);
-    return { ok: true };
+    return Number(state.ktBestScores?.[key] ?? state.ktScores?.[key] ?? state.ktScores?.[String(ktNumber)] ?? 0);
   },
 
-  getStudentOfficial(id) {
-    const cleanId = this.normaliseId(id);
-    return this.loadTeacherData().students[cleanId] || null;
+  getOfficialRecord(state, ktNumber) {
+    return state.officialMarks?.[this.ktKey(ktNumber)] || null;
   },
 
-  syncOfficialToState(state, persist = true) {
-    if (!state || typeof state !== "object") state = this.defaults();
+  getOfficialScore(state, ktNumber) {
+    const record = this.getOfficialRecord(state, ktNumber);
+    return record?.official && record?.locked ? Number(record.score || 0) : 0;
+  },
 
-    state.completedKT = Array.isArray(state.completedKT) ? state.completedKT : [];
-    state.officialMarks = state.officialMarks && typeof state.officialMarks === "object" ? state.officialMarks : {};
-    state.ktScores = state.ktScores && typeof state.ktScores === "object" ? state.ktScores : {};
-    state.ktBestScores = state.ktBestScores && typeof state.ktBestScores === "object" ? state.ktBestScores : {};
+  isKTCompetent(state, ktNumber) {
+    const record = this.getOfficialRecord(state, ktNumber);
+    return Boolean(record?.official && record?.locked && Number(record.score) >= 60);
+  },
 
-    const studentRecord = state?.student?.id ? this.getStudentOfficial(state.student.id) : null;
-    if (studentRecord?.name && state.student) state.student.name = studentRecord.name;
+  getKTStatus(state, ktNumber) {
+    if (this.isKTCompetent(state, ktNumber)) return "TERAMPIL";
+    if (this.getPracticeScore(state, ktNumber) > 0) return "BELUM TERAMPIL";
+    return "BELUM DINILAI";
+  },
 
-    const teacherMarks = studentRecord?.officialMarks && typeof studentRecord.officialMarks === "object"
-      ? studentRecord.officialMarks
-      : {};
+  mirrorOfficialToTeacher(state, ktNumber, record) {
+    if (!state?.student?.id || !record) return false;
+    const id = this.normaliseId(state.student.id);
+    const data = this.loadTeacherData();
+    const student = data.students[id] || {
+      name: state.student.name || "",
+      id,
+      className: "",
+      officialMarks: {},
+      createdAt: new Date().toISOString()
+    };
+    student.officialMarks = student.officialMarks || {};
+    const key = this.ktKey(ktNumber);
+    const current = student.officialMarks[key];
+    if (!(current?.official && current?.locked)) student.officialMarks[key] = { ...record };
+    student.updatedAt = new Date().toISOString();
+    data.students[id] = student;
+    return this.saveTeacherData(data);
+  },
 
-    Object.entries(teacherMarks).forEach(([key, record]) => {
-      const local = state.officialMarks[key];
-      if (!local?.locked || record?.locked) state.officialMarks[key] = record;
-    });
-
-    const completed = new Set();
-    let highestUnlocked = 1;
-
-    for (let i = 1; i <= 10; i++) {
-      const key = this.ktKey(i);
-      const bestPractice = Number(
-        state.ktBestScores?.[key] ??
-        state.ktScores?.[key] ??
-        state.ktScores?.[String(i)] ??
-        0
-      );
-
-      let record = state.officialMarks[key];
-
-      if ((!record || !record.locked || !record.official) && bestPractice >= 60) {
-        record = {
-          score: bestPractice,
-          official: true,
-          locked: true,
-          status: "TERAMPIL",
-          source: "STUDENT_KT",
-          updatedAt: new Date().toISOString(),
-          lockedAt: new Date().toISOString()
-        };
-        state.officialMarks[key] = record;
-
-        if (studentRecord) {
-          const teacherData = this.loadTeacherData();
-          const cleanId = this.normaliseId(state.student.id);
-          const teacherStudent = teacherData.students?.[cleanId];
-          if (teacherStudent) {
-            teacherStudent.officialMarks = teacherStudent.officialMarks || {};
-            const existing = teacherStudent.officialMarks[key];
-            if (!(existing?.locked && existing?.official)) {
-              teacherStudent.officialMarks[key] = { ...record };
-              teacherStudent.updatedAt = new Date().toISOString();
-              this.saveTeacherData(teacherData);
-            }
-          }
-        }
+  recalculate(state, persist = true) {
+    state = this.normaliseState(state);
+    if (state.student?.id) {
+      const teacher = this.getStudentOfficial(state.student.id);
+      if (teacher?.name) state.student.name = teacher.name;
+      if (teacher?.officialMarks) {
+        Object.entries(teacher.officialMarks).forEach(([key, rec]) => {
+          const local = state.officialMarks[key];
+          if (!local || rec?.locked || !local?.locked) state.officialMarks[key] = rec;
+        });
       }
+    }
 
-      if (record?.official && record?.locked && Number(record.score) >= 60) {
-        completed.add(i);
-        if (i < 10) highestUnlocked = Math.max(highestUnlocked, i + 1);
+    const completed = [];
+    let unlocked = 1;
+    state.courseCompleted = false;
+    for (let i=1;i<=10;i++) {
+      if (this.isKTCompetent(state, i)) {
+        completed.push(i);
+        if (i < 10) unlocked = Math.max(unlocked, i + 1);
         else state.courseCompleted = true;
       }
     }
-
-    state.completedKT = Array.from(completed).sort((a, b) => a - b);
-    state.unlockedKP = highestUnlocked;
-    state.unlocked = highestUnlocked;
-
+    state.completedKT = completed;
+    state.unlockedKP = unlocked;
+    state.unlocked = unlocked;
     if (persist) this.save(state);
     return state;
+  },
+
+  syncOfficialToState(state, persist = true) {
+    return this.recalculate(state, persist);
   },
 
   completeKP(state, kpNumber) {
     const kp = Number(kpNumber);
     if (!Number.isInteger(kp) || kp < 1 || kp > 10) return state;
+    state.completedKP = Array.isArray(state.completedKP) ? state.completedKP : [];
     if (!state.completedKP.includes(kp)) state.completedKP.push(kp);
+    state.completedKP.sort((a,b)=>a-b);
     this.save(state);
     return state;
   },
 
-  // KT01 hingga KT10: markah 60% ke atas menjadi rasmi, dikunci dan membuka KP seterusnya.
   saveKTResult(state, ktNumber, score) {
     const kt = Number(ktNumber);
-    const rawScore = Number(score);
-    if (!Number.isInteger(kt) || kt < 1 || kt > 10 || Number.isNaN(rawScore)) return state;
+    const raw = Number(score);
+    if (!Number.isInteger(kt) || kt < 1 || kt > 10 || Number.isNaN(raw)) return state;
 
-    const mark = Math.max(0, Math.min(100, Math.round(rawScore)));
+    const mark = Math.max(0, Math.min(100, Math.round(raw)));
     const key = this.ktKey(kt);
-
-    state.ktScores = state.ktScores && typeof state.ktScores === "object" ? state.ktScores : {};
-    state.ktBestScores = state.ktBestScores && typeof state.ktBestScores === "object" ? state.ktBestScores : {};
-    state.ktAttempts = state.ktAttempts && typeof state.ktAttempts === "object" ? state.ktAttempts : {};
-    state.officialMarks = state.officialMarks && typeof state.officialMarks === "object" ? state.officialMarks : {};
+    state.ktScores = state.ktScores || {};
+    state.ktBestScores = state.ktBestScores || {};
+    state.ktAttempts = state.ktAttempts || {};
+    state.officialMarks = state.officialMarks || {};
 
     state.ktScores[key] = mark;
     state.ktScores[String(kt)] = mark;
-    state.ktAttempts[key] = (Number(state.ktAttempts[key]) || 0) + 1;
-    state.ktBestScores[key] = Math.max(Number(state.ktBestScores[key]) || 0, mark);
+    state.ktBestScores[key] = Math.max(Number(state.ktBestScores[key] || 0), mark);
+    state.ktAttempts[key] = Number(state.ktAttempts[key] || 0) + 1;
 
     const existing = state.officialMarks[key];
     if (!(existing?.official && existing?.locked) && mark >= 60) {
-      state.officialMarks[key] = {
+      const record = {
         score: mark,
         official: true,
         locked: true,
@@ -338,58 +269,107 @@ window.C05Storage = {
         updatedAt: new Date().toISOString(),
         lockedAt: new Date().toISOString()
       };
+      state.officialMarks[key] = record;
+      this.mirrorOfficialToTeacher(state, kt, record);
     }
 
-    this.syncOfficialToState(state, false);
+    state = this.recalculate(state, false);
     this.save(state);
     return state;
   },
 
-  isKTCompetent(state, ktNumber) {
-    const record = state.officialMarks?.[this.ktKey(ktNumber)];
-    return Boolean(record?.official && record?.locked && Number(record.score) >= 60);
+  saveOfficialMark(id, ktNumber, score, note = "") {
+    const cleanId = this.normaliseId(id);
+    const kt = Number(ktNumber);
+    const raw = Number(score);
+    if (!cleanId || !Number.isInteger(kt) || kt < 1 || kt > 10 || Number.isNaN(raw)) {
+      return { ok:false, message:"Maklumat markah tidak sah." };
+    }
+    const mark = Math.max(0, Math.min(100, Math.round(raw)));
+    const data = this.loadTeacherData();
+    const student = data.students[cleanId];
+    if (!student) return { ok:false, message:"Pelajar belum didaftarkan." };
+    const key = this.ktKey(kt);
+    const existing = student.officialMarks?.[key];
+    if (existing?.official && existing?.locked) return { ok:false, locked:true, message:`${key.toUpperCase()} telah rasmi dan dikunci.` };
+
+    const official = mark >= 60;
+    student.officialMarks = student.officialMarks || {};
+    student.officialMarks[key] = {
+      score: mark,
+      official,
+      locked: official,
+      status: official ? "TERAMPIL" : "BELUM RASMI",
+      source: "TEACHER",
+      note: String(note || "").trim(),
+      updatedAt: new Date().toISOString(),
+      lockedAt: official ? new Date().toISOString() : null
+    };
+    student.updatedAt = new Date().toISOString();
+    this.saveTeacherData(data);
+    return { ok:true, locked:official, record:student.officialMarks[key] };
   },
 
-  getKTStatus(state, ktNumber) {
-    const record = state.officialMarks?.[this.ktKey(ktNumber)];
-    if (record?.locked && record?.official) return "TERAMPIL";
-    if (record) return "BELUM RASMI";
-    return "BELUM DINILAI";
+  saveOfficialMarksBulk(ktNumber, entries) {
+    const kt = Number(ktNumber);
+    if (!Number.isInteger(kt) || kt < 1 || kt > 10 || !Array.isArray(entries)) return { ok:false, message:"Data markah tidak sah." };
+    let saved=0, locked=0, pending=0, skipped=0;
+    for (const entry of entries) {
+      const result = this.saveOfficialMark(entry.id, kt, entry.score);
+      if (!result.ok) { skipped++; continue; }
+      saved++;
+      if (result.locked) locked++; else pending++;
+    }
+    return { ok:true, saved, locked, pending, skipped };
+  },
+
+  emergencyUnlock(id, ktNumber) {
+    const cleanId = this.normaliseId(id);
+    const data = this.loadTeacherData();
+    const key = this.ktKey(ktNumber);
+    const record = data.students?.[cleanId]?.officialMarks?.[key];
+    if (!record) return { ok:false, message:"Rekod tidak ditemui." };
+    record.locked = false;
+    record.official = false;
+    record.status = "DIBUKA SEMULA";
+    record.unlockedAt = new Date().toISOString();
+    this.saveTeacherData(data);
+    return { ok:true };
   },
 
   getProgress(state) {
-    return Math.round(((state.completedKT?.length || 0) / 10) * 100);
+    return Math.round(((Array.isArray(state.completedKT) ? state.completedKT.length : 0) / 10) * 100);
   },
 
   exportJSON(state) {
-    const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+    const blob = new Blob([JSON.stringify(state, null, 2)], { type:"application/json" });
     const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `c05-backup-${new Date().toISOString().slice(0, 10)}.json`;
-    link.click();
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `c05-backup-${new Date().toISOString().slice(0,10)}.json`;
+    a.click();
     URL.revokeObjectURL(url);
   },
 
   exportCSV() {
     const data = this.loadTeacherData();
-    const rows = [["Nama Pelajar", "ID Pelajar", "Kelas", ...Array.from({ length: 10 }, (_, i) => `KT${String(i + 1).padStart(2, "0")}`), "Purata Rasmi"]];
-    Object.values(data.students).forEach((student) => {
-      const marks = Array.from({ length: 10 }, (_, i) => {
-        const r = student.officialMarks?.[this.ktKey(i + 1)];
+    const rows = [["Nama Pelajar","ID Pelajar","Kelas",...Array.from({length:10},(_,i)=>`KT${String(i+1).padStart(2,"0")}`),"Purata Rasmi"]];
+    Object.values(data.students).forEach(student => {
+      const marks = Array.from({length:10},(_,i)=>{
+        const r = student.officialMarks?.[this.ktKey(i+1)];
         return r?.official && r?.locked ? Number(r.score) : "";
       });
-      const valid = marks.filter((m) => m !== "");
-      const average = valid.length ? Math.round(valid.reduce((a, b) => a + b, 0) / valid.length) : "";
-      rows.push([student.name, student.id, student.className || "", ...marks, average]);
+      const valid = marks.filter(v=>v!=="");
+      const avg = valid.length ? Math.round(valid.reduce((a,b)=>a+b,0)/valid.length) : "";
+      rows.push([student.name,student.id,student.className||"",...marks,avg]);
     });
-    const csv = rows.map((row) => row.map((v) => `"${String(v).replaceAll('"', '""')}"`).join(",")).join("\n");
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const csv = rows.map(row=>row.map(v=>`"${String(v).replaceAll('"','""')}"`).join(",")).join("\n");
+    const blob = new Blob([csv], { type:"text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `c05-markah-rasmi-${new Date().toISOString().slice(0, 10)}.csv`;
-    link.click();
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `c05-markah-rasmi-${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();
     URL.revokeObjectURL(url);
   }
 };
