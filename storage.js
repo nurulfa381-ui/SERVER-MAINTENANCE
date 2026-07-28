@@ -1,10 +1,10 @@
 window.C05Storage = {
   key: "c05ServerMaintenanceState",
-  teacherKey: "c05TeacherAssessmentV6",
+  teacherKey: "c05TeacherAssessmentV61",
 
   defaults() {
     return {
-      version: 6,
+      version: 6.1,
       lang: "ms",
       student: null,
       xp: 0,
@@ -25,7 +25,7 @@ window.C05Storage = {
   },
 
   teacherDefaults() {
-    return { version: 6, students: {}, updatedAt: null };
+    return { version: 6.1, students: {}, updatedAt: null };
   },
 
   normaliseId(value) {
@@ -114,6 +114,8 @@ window.C05Storage = {
       name: cleanName,
       id: cleanId,
       className: String(className || existing.className || "").trim(),
+      practiceMarks: existing.practiceMarks && typeof existing.practiceMarks === "object" ? existing.practiceMarks : {},
+      practiceMarks: existing.practiceMarks && typeof existing.practiceMarks === "object" ? existing.practiceMarks : {},
       officialMarks: existing.officialMarks && typeof existing.officialMarks === "object" ? existing.officialMarks : {},
       createdAt: existing.createdAt || new Date().toISOString(),
       updatedAt: new Date().toISOString()
@@ -137,6 +139,43 @@ window.C05Storage = {
     };
     this.saveTeacherData(data);
     return data.students[id];
+  },
+
+  mirrorPracticeToTeacher(state, ktNumber, score) {
+    if (!state?.student?.id) return false;
+    const id = this.normaliseId(state.student.id);
+    const data = this.loadTeacherData();
+    const existing = data.students[id] || {};
+    const key = this.ktKey(ktNumber);
+    const previous = existing.practiceMarks?.[key] || {};
+    const mark = Math.max(0, Math.min(100, Math.round(Number(score) || 0)));
+
+    data.students[id] = {
+      name: String(state.student.name || existing.name || "").trim(),
+      id,
+      className: String(state.student.className || state.student.class || existing.className || "").trim(),
+      practiceMarks: {
+        ...(existing.practiceMarks || {}),
+        [key]: {
+          latestScore: mark,
+          bestScore: Math.max(Number(previous.bestScore || 0), mark),
+          attempts: Number(previous.attempts || 0) + 1,
+          status: mark >= 60 ? "TERAMPIL" : "BELUM TERAMPIL",
+          source: "PELATIH",
+          submittedAt: new Date().toISOString()
+        }
+      },
+      officialMarks: existing.officialMarks && typeof existing.officialMarks === "object" ? existing.officialMarks : {},
+      createdAt: existing.createdAt || new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    return this.saveTeacherData(data);
+  },
+
+  getPracticeTeacherRecord(id, ktNumber) {
+    const student = this.getStudentOfficial(id);
+    return student?.practiceMarks?.[this.ktKey(ktNumber)] || null;
   },
 
   getStudentOfficial(id) {
@@ -185,9 +224,11 @@ window.C05Storage = {
       name: state.student.name || "",
       id,
       className: "",
+      practiceMarks: {},
       officialMarks: {},
       createdAt: new Date().toISOString()
     };
+    student.practiceMarks = student.practiceMarks || {};
     student.officialMarks = student.officialMarks || {};
     const key = this.ktKey(ktNumber);
     const current = student.officialMarks[key];
@@ -258,6 +299,9 @@ window.C05Storage = {
     state.ktBestScores[key] = Math.max(Number(state.ktBestScores[key] || 0), mark);
     state.ktAttempts[key] = Number(state.ktAttempts[key] || 0) + 1;
 
+    // Pautkan setiap markah pelatih ke paparan Pegawai Penilai.
+    this.mirrorPracticeToTeacher(state, kt, mark);
+
     const existing = state.officialMarks[key];
     if (!(existing?.official && existing?.locked) && mark >= 60) {
       const record = {
@@ -276,6 +320,35 @@ window.C05Storage = {
     state = this.recalculate(state, false);
     this.save(state);
     return state;
+  },
+
+  confirmPracticeMark(id, ktNumber, assessorName = "Pegawai Penilai") {
+    const cleanId = this.normaliseId(id);
+    const kt = Number(ktNumber);
+    const data = this.loadTeacherData();
+    const student = data.students?.[cleanId];
+    const key = this.ktKey(kt);
+    const practice = student?.practiceMarks?.[key];
+    if (!student || !practice) return { ok:false, message:"Markah pelatih tidak ditemui." };
+    if (Number(practice.bestScore) < 60) return { ok:false, message:"Markah pelatih belum mencapai 60%." };
+    const current = student.officialMarks?.[key];
+    if (current?.locked && current?.official) return { ok:false, locked:true, message:`${key.toUpperCase()} telah rasmi dan dikunci.` };
+
+    student.officialMarks = student.officialMarks || {};
+    student.officialMarks[key] = {
+      score: Number(practice.bestScore),
+      official: true,
+      locked: true,
+      status: "TERAMPIL",
+      source: "PEGAWAI_SAHKAN_MARKAH_PELATIH",
+      assessorName: String(assessorName || "Pegawai Penilai").trim(),
+      practiceSubmittedAt: practice.submittedAt || null,
+      updatedAt: new Date().toISOString(),
+      lockedAt: new Date().toISOString()
+    };
+    student.updatedAt = new Date().toISOString();
+    this.saveTeacherData(data);
+    return { ok:true, locked:true, record:student.officialMarks[key] };
   },
 
   saveOfficialMark(id, ktNumber, score, note = "") {
@@ -353,25 +426,36 @@ window.C05Storage = {
 
   exportCSV() {
     const data = this.loadTeacherData();
-    const rows = [["Nama Pelajar","ID Pelajar","Kelas",...Array.from({length:10},(_,i)=>`KT${String(i+1).padStart(2,"0")}`),"Purata Rasmi"]];
+    const headers = ["Nama Pelajar","ID Pelajar","Kelas"];
+    for (let i=1;i<=10;i++) {
+      headers.push(`KT${String(i).padStart(2,"0")} Latihan`);
+      headers.push(`KT${String(i).padStart(2,"0")} Rasmi`);
+    }
+    headers.push("Purata Rasmi");
+    const rows = [headers];
     Object.values(data.students).forEach(student => {
-      const marks = Array.from({length:10},(_,i)=>{
-        const r = student.officialMarks?.[this.ktKey(i+1)];
-        return r?.official && r?.locked ? Number(r.score) : "";
-      });
-      const valid = marks.filter(v=>v!=="");
-      const avg = valid.length ? Math.round(valid.reduce((a,b)=>a+b,0)/valid.length) : "";
-      rows.push([student.name,student.id,student.className||"",...marks,avg]);
+      const values = [];
+      const officialValues = [];
+      for (let i=1;i<=10;i++) {
+        const key = this.ktKey(i);
+        const p = student.practiceMarks?.[key];
+        const r = student.officialMarks?.[key];
+        values.push(p ? Number(p.bestScore ?? p.latestScore ?? 0) : "");
+        const official = r?.official && r?.locked ? Number(r.score) : "";
+        values.push(official);
+        if (official !== "") officialValues.push(official);
+      }
+      const avg = officialValues.length ? Math.round(officialValues.reduce((a,b)=>a+b,0)/officialValues.length) : "";
+      rows.push([student.name,student.id,student.className||"",...values,avg]);
     });
     const csv = rows.map(row=>row.map(v=>`"${String(v).replaceAll('"','""')}"`).join(",")).join("\n");
     const blob = new Blob([csv], { type:"text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `c05-markah-rasmi-${new Date().toISOString().slice(0,10)}.csv`;
+    a.download = `c05-markah-pelatih-dan-rasmi-${new Date().toISOString().slice(0,10)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
-  }
-};
+  }};
 
 window.SHStorage = window.C05Storage;
