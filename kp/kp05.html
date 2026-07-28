@@ -32,6 +32,8 @@ button,select{font:inherit}button{cursor:pointer}button:disabled{opacity:.45;cur
 <body>
 <main id="app"></main>
 <script src="../storage.js"></script>
+<script src="../firebase-sync.js?v=1.1.0"></script>
+<script type="module" src="../firebase-config.js?v=1.1.0"></script>
 <script>
 const app=document.getElementById("app");
 if(!window.C05Storage)throw new Error("storage.js tidak ditemui");

@@ -33,6 +33,8 @@ button{font:inherit;cursor:pointer}button:disabled{opacity:.45;cursor:not-allowe
 <div class="toast" id="toast">🎉 Tahniah! Urutan betul. +20 XP</div>
 <main id="app"></main>
 <script src="../storage.js"></script>
+<script src="../firebase-sync.js?v=1.1.0"></script>
+<script type="module" src="../firebase-config.js?v=1.1.0"></script>
 <script>
 const app=document.getElementById("app");
 if(!window.C05Storage)throw new Error("storage.js tidak ditemui");
