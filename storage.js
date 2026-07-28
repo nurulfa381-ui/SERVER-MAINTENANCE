@@ -65,6 +65,11 @@ window.C05Storage = {
   save(state) {
     try {
       localStorage.setItem(this.key, JSON.stringify(state));
+
+      if (window.FirebaseSync) {
+        window.FirebaseSync.saveStudentState(state);
+      }
+
       return true;
     } catch (error) {
       console.error("Gagal menyimpan data C05:", error);
@@ -96,6 +101,11 @@ window.C05Storage = {
     try {
       data.updatedAt = new Date().toISOString();
       localStorage.setItem(this.teacherKey, JSON.stringify(data));
+
+      if (window.FirebaseSync) {
+        window.FirebaseSync.saveTeacherData(data);
+      }
+
       return true;
     } catch (error) {
       console.error("Gagal menyimpan rekod guru:", error);
@@ -114,7 +124,6 @@ window.C05Storage = {
       name: cleanName,
       id: cleanId,
       className: String(className || existing.className || "").trim(),
-      practiceMarks: existing.practiceMarks && typeof existing.practiceMarks === "object" ? existing.practiceMarks : {},
       practiceMarks: existing.practiceMarks && typeof existing.practiceMarks === "object" ? existing.practiceMarks : {},
       officialMarks: existing.officialMarks && typeof existing.officialMarks === "object" ? existing.officialMarks : {},
       createdAt: existing.createdAt || new Date().toISOString(),
