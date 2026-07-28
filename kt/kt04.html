@@ -42,6 +42,8 @@ select,textarea,input[type=number]{width:100%;padding:11px;border:1.5px solid #9
 <body>
 <main id="app"></main>
 <script src="../storage.js"></script>
+<script src="../firebase-sync.js?v=1.1.0"></script>
+<script type="module" src="../firebase-config.js?v=1.1.0"></script>
 <script>
 const app=document.getElementById("app");
 if(!window.C05Storage)throw new Error("storage.js tidak ditemui");
