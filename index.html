@@ -25,7 +25,12 @@
     rel="stylesheet"
   >
 
-  <link rel="stylesheet" href="style.css?v=6.1.0">
+  <link rel="stylesheet" href="style.css?v=6.3.0">
+
+  <!-- PWA -->
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" href="./assets/favicon.png">
+  <link rel="apple-touch-icon" href="./assets/icon-192.png">
 </head>
 
 <body>
@@ -39,16 +44,42 @@
   <main id="app" aria-live="polite"></main>
 
   <!-- Sistem asal C05 -->
-  <script src="storage.js?v=6.1.0"></script>
-  <script src="text.js?v=6.1.0"></script>
-  <script src="missions.js?v=6.1.0"></script>
-  <script src="badges.js?v=6.1.0"></script>
+  <script src="storage.js?v=6.3.0"></script>
+  <script src="text.js?v=6.3.0"></script>
+  <script src="missions.js?v=6.3.0"></script>
+  <script src="badges.js?v=6.3.0"></script>
 
   <!-- Firebase Sync -->
   <script src="firebase-sync.js?v=1.1.0"></script>
   <script type="module" src="firebase-config.js?v=1.1.0"></script>
 
-  <script src="app.js?v=6.2.0"></script>
+  <script src="app.js?v=6.3.0"></script>
+
+  <!-- Daftar PWA Service Worker -->
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", async () => {
+        try {
+          const registration = await navigator.serviceWorker.register(
+            "./service-worker.js",
+            { scope: "./" }
+          );
+
+          console.log(
+            "SERVER MAINTENANCE PWA aktif:",
+            registration.scope
+          );
+
+          await registration.update();
+        } catch (error) {
+          console.error(
+            "Service Worker gagal didaftarkan:",
+            error
+          );
+        }
+      });
+    }
+  </script>
 
 </body>
 </html>
