@@ -1,39 +1,102 @@
+/* =========================================================
+   SERVER MAINTENANCE C05
+   FIREBASE SYNC - FINAL FIX
+   =========================================================
+
+   SUMBER UTAMA DATA PELATIH:
+   C05/students/{ID}
+
+   DATA PEGAWAI / BACKUP:
+   C05/teacher/students/{ID}
+
+   Mod Pegawai Penilai membaca terus:
+   C05/students
+
+   ========================================================= */
+
 window.FirebaseSync = {
+
   enabled: false,
   database: null,
   dbFunctions: null,
+
   pendingKey: "c05FirebasePendingV1",
 
-  init({ database, ref, set, update, get, onValue }) {
+
+  /* =======================================================
+     INITIALISE FIREBASE
+  ======================================================= */
+
+  init({
+    database,
+    ref,
+    set,
+    update,
+    get,
+    onValue
+  }) {
+
     this.database = database;
-    this.dbFunctions = { ref, set, update, get, onValue };
+
+    this.dbFunctions = {
+      ref,
+      set,
+      update,
+      get,
+      onValue
+    };
+
     this.enabled = true;
 
-    console.log("Firebase Sync C05 aktif.");
+    console.log(
+      "Firebase Sync C05 aktif."
+    );
 
+    // Cuba hantar semula data yang tertangguh.
     this.flushPending();
   },
 
+
+  /* =======================================================
+     NORMALISE ID PELATIH
+  ======================================================= */
+
   normaliseId(value) {
+
     return String(value || "")
       .trim()
       .toUpperCase()
       .replace(/[.#$/[\]]/g, "_");
   },
 
-  /* =========================================================
-     QUEUE / OFFLINE BACKUP
-  ========================================================= */
+
+  /* =======================================================
+     OFFLINE / PENDING QUEUE
+  ======================================================= */
 
   readPending() {
-    try {
-      const raw = localStorage.getItem(this.pendingKey);
-      const data = raw ? JSON.parse(raw) : {};
 
-      return data && typeof data === "object"
+    try {
+
+      const raw =
+        localStorage.getItem(
+          this.pendingKey
+        );
+
+      const data =
+        raw
+          ? JSON.parse(raw)
+          : {};
+
+      return (
+        data &&
+        typeof data === "object"
+      )
         ? data
         : {};
+
     } catch (error) {
+
       console.warn(
         "Firebase: gagal membaca queue sync.",
         error
@@ -43,13 +106,20 @@ window.FirebaseSync = {
     }
   },
 
+
   writePending(data) {
+
     try {
+
       localStorage.setItem(
         this.pendingKey,
-        JSON.stringify(data || {})
+        JSON.stringify(
+          data || {}
+        )
       );
+
     } catch (error) {
+
       console.warn(
         "Firebase: gagal menyimpan queue sync.",
         error
@@ -57,88 +127,160 @@ window.FirebaseSync = {
     }
   },
 
+
   queueStudentState(state) {
-    if (!state?.student?.id) return;
 
-    const pending = this.readPending();
+    if (
+      !state?.student?.id
+    ) {
+      return;
+    }
 
-    pending.studentState = state;
+    const pending =
+      this.readPending();
 
-    this.writePending(pending);
+    pending.studentState =
+      state;
+
+    this.writePending(
+      pending
+    );
   },
+
 
   queueTeacherData(data) {
-    if (!data?.students) return;
 
-    const pending = this.readPending();
+    if (
+      !data?.students
+    ) {
+      return;
+    }
 
-    pending.teacherData = data;
+    const pending =
+      this.readPending();
 
-    this.writePending(pending);
+    pending.teacherData =
+      data;
+
+    this.writePending(
+      pending
+    );
   },
 
-  async flushPending() {
-    if (!this.enabled) return false;
 
-    const pending = this.readPending();
+  /* =======================================================
+     HANTAR SEMULA DATA YANG TERTANGGUH
+  ======================================================= */
+
+  async flushPending() {
+
+    if (!this.enabled) {
+      return false;
+    }
+
+    const pending =
+      this.readPending();
 
     let changed = false;
 
-    if (pending.studentState) {
-      const ok = await this.saveStudentState(
-        pending.studentState,
-        false
-      );
+
+    // =========================
+    // DATA PELATIH
+    // =========================
+
+    if (
+      pending.studentState
+    ) {
+
+      const ok =
+        await this.saveStudentState(
+          pending.studentState,
+          false
+        );
 
       if (ok) {
+
         delete pending.studentState;
+
         changed = true;
       }
     }
 
-    if (pending.teacherData) {
-      const ok = await this.saveTeacherData(
-        pending.teacherData,
-        false
-      );
+
+    // =========================
+    // DATA PEGAWAI
+    // =========================
+
+    if (
+      pending.teacherData
+    ) {
+
+      const ok =
+        await this.saveTeacherData(
+          pending.teacherData,
+          false
+        );
 
       if (ok) {
+
         delete pending.teacherData;
+
         changed = true;
       }
     }
+
 
     if (changed) {
-      this.writePending(pending);
+
+      this.writePending(
+        pending
+      );
     }
 
     return changed;
   },
 
-  /* =========================================================
-     SIMPAN DATA PELAJAR KE FIREBASE
-     Lokasi:
+
+  /* =======================================================
+     SIMPAN DATA PELATIH
+
+     FIREBASE:
      C05/students/{ID}
-  ========================================================= */
+  ======================================================= */
 
   async saveStudentState(
     state,
     queueOnFail = true
   ) {
-    if (!state?.student?.id) return false;
 
+    if (
+      !state?.student?.id
+    ) {
+      return false;
+    }
+
+
+    // Firebase belum bersedia
     if (!this.enabled) {
+
       if (queueOnFail) {
-        this.queueStudentState(state);
+
+        this.queueStudentState(
+          state
+        );
       }
 
       return false;
     }
 
+
     try {
-      const id = this.normaliseId(
-        state.student.id
-      );
+
+      const id =
+        this.normaliseId(
+          state.student.id
+        );
+
 
       const studentRef =
         this.dbFunctions.ref(
@@ -146,9 +288,11 @@ window.FirebaseSync = {
           `C05/students/${id}`
         );
 
+
       await this.dbFunctions.update(
         studentRef,
         {
+
           name: String(
             state.student.name || ""
           ).trim(),
@@ -164,17 +308,32 @@ window.FirebaseSync = {
           avatar:
             state.student.avatar || "",
 
-          xp: Number(state.xp || 0),
 
-          coins: Number(
-            state.coins || 0
-          ),
+          // =====================
+          // XP & COINS
+          // =====================
 
-          unlockedKP: Number(
-            state.unlockedKP ||
-            state.unlocked ||
-            1
-          ),
+          xp:
+            Number(
+              state.xp || 0
+            ),
+
+          coins:
+            Number(
+              state.coins || 0
+            ),
+
+
+          // =====================
+          // PROGRESS KP
+          // =====================
+
+          unlockedKP:
+            Number(
+              state.unlockedKP ||
+              state.unlocked ||
+              1
+            ),
 
           completedKP:
             Array.isArray(
@@ -183,12 +342,22 @@ window.FirebaseSync = {
               ? state.completedKP
               : [],
 
+
+          // =====================
+          // PROGRESS KT
+          // =====================
+
           completedKT:
             Array.isArray(
               state.completedKT
             )
               ? state.completedKT
               : [],
+
+
+          // =====================
+          // MARKAH KT
+          // =====================
 
           ktScores:
             state.ktScores || {},
@@ -199,153 +368,243 @@ window.FirebaseSync = {
           ktAttempts:
             state.ktAttempts || {},
 
+
+          // =====================
+          // MARKAH RASMI
+          // =====================
+
           officialMarks:
             state.officialMarks || {},
 
+
+          // =====================
+          // BADGES
+          // =====================
+
           badges:
-            Array.isArray(state.badges)
+            Array.isArray(
+              state.badges
+            )
               ? state.badges
               : [],
 
+
+          // =====================
+          // PROGRESS %
+          // =====================
+
           progress:
             typeof window.C05Storage
-              ?.getProgress === "function"
+              ?.getProgress ===
+              "function"
+
               ? window.C05Storage
-                  .getProgress(state)
+                  .getProgress(
+                    state
+                  )
+
               : Number(
                   state.progress || 0
                 ),
+
+
+          // =====================
+          // COURSE COMPLETED
+          // =====================
 
           courseCompleted:
             Boolean(
               state.courseCompleted
             ),
 
+
+          // =====================
+          // LAST UPDATE
+          // =====================
+
           updatedAt:
-            new Date().toISOString()
+            new Date()
+              .toISOString()
         }
       );
 
+
       return true;
+
+
     } catch (error) {
+
       console.warn(
         "Firebase: gagal sync data pelajar.",
         error
       );
 
+
       if (queueOnFail) {
-        this.queueStudentState(state);
+
+        this.queueStudentState(
+          state
+        );
       }
+
 
       return false;
     }
   },
 
-  /* =========================================================
+
+  /* =======================================================
      SIMPAN DATA PEGAWAI / MARKAH RASMI
 
-     Fungsi lama dikekalkan supaya sistem C05
-     yang sedia ada tidak rosak.
-  ========================================================= */
+     FIREBASE:
+     C05/teacher/students/{ID}
+
+     Fungsi ini dikekalkan untuk keserasian
+     dengan teacher.js / sistem C05 sedia ada.
+  ======================================================= */
 
   async saveTeacherData(
     data,
     queueOnFail = true
   ) {
-    if (!data?.students) return false;
+
+    if (
+      !data?.students
+    ) {
+      return false;
+    }
+
 
     if (!this.enabled) {
+
       if (queueOnFail) {
-        this.queueTeacherData(data);
+
+        this.queueTeacherData(
+          data
+        );
       }
 
       return false;
     }
 
+
     try {
+
       const updates = {};
+
 
       Object.entries(
         data.students
       ).forEach(
         ([rawId, student]) => {
+
           const id =
-            this.normaliseId(rawId);
+            this.normaliseId(
+              rawId
+            );
+
 
           updates[
             `C05/teacher/students/${id}`
           ] = {
+
             ...student,
+
             id,
 
             updatedAt:
               student.updatedAt ||
-              new Date().toISOString()
+              new Date()
+                .toISOString()
           };
         }
       );
 
+
       if (
-        !Object.keys(updates).length
+        !Object.keys(
+          updates
+        ).length
       ) {
+
         return true;
       }
+
 
       const rootRef =
         this.dbFunctions.ref(
           this.database
         );
 
+
       await this.dbFunctions.update(
         rootRef,
         updates
       );
 
+
       return true;
+
+
     } catch (error) {
+
       console.warn(
         "Firebase: gagal sync rekod pengajar.",
         error
       );
 
+
       if (queueOnFail) {
-        this.queueTeacherData(data);
+
+        this.queueTeacherData(
+          data
+        );
       }
+
 
       return false;
     }
   },
 
-  /* =========================================================
-     TUKAR DATA PELAJAR LAMA FIREBASE
-     KEPADA FORMAT teacher.js
 
-     Data lama:
+  /* =======================================================
+     TUKAR FORMAT DATA FIREBASE
+     KEPADA FORMAT MOD PEGAWAI PENILAI
+
+     Data pelajar:
        ktScores
        ktBestScores
        ktAttempts
        officialMarks
 
-     teacher.js perlukan:
+     Teacher perlukan:
        practiceMarks
        officialMarks
-  ========================================================= */
+  ======================================================= */
 
   convertStudentForTeacher(
     rawStudent,
     rawId
   ) {
+
     const student =
       rawStudent &&
-      typeof rawStudent === "object"
+      typeof rawStudent ===
+        "object"
+
         ? rawStudent
         : {};
 
-    const id = this.normaliseId(
-      student.id || rawId
-    );
+
+    const id =
+      this.normaliseId(
+        student.id ||
+        rawId
+      );
+
 
     const practiceMarks = {};
+
 
     const ktScores =
       student.ktScores || {};
@@ -356,85 +615,108 @@ window.FirebaseSync = {
     const ktAttempts =
       student.ktAttempts || {};
 
-    /*
-      C05 mempunyai KT01 hingga KT10.
-      Kita bina practiceMarks daripada
-      rekod lama Firebase.
-    */
+
+    /* =====================================================
+       C05 mempunyai KT01 hingga KT10
+    ===================================================== */
 
     for (
       let number = 1;
       number <= 10;
       number += 1
     ) {
-      const padded =
-        String(number).padStart(
-          2,
-          "0"
-        );
 
-      /*
-        Sokong beberapa kemungkinan key
-        yang pernah digunakan oleh C05.
-      */
+      const padded =
+        String(number)
+          .padStart(
+            2,
+            "0"
+          );
+
+
+      /* ===================================================
+         Sokong format key lama dan baru
+      =================================================== */
 
       const possibleKeys = [
+
         `KT${padded}`,
         `kt${padded}`,
+
         `KT${number}`,
         `kt${number}`,
+
         String(number)
       ];
+
 
       let latestScore;
       let bestScore;
       let attempts;
 
+
       for (
-        const key of possibleKeys
+        const key of
+        possibleKeys
       ) {
+
         if (
-          latestScore === undefined &&
-          ktScores[key] !== undefined
+          latestScore ===
+            undefined &&
+          ktScores[key] !==
+            undefined
         ) {
+
           latestScore =
             ktScores[key];
         }
 
+
         if (
-          bestScore === undefined &&
+          bestScore ===
+            undefined &&
           ktBestScores[key] !==
             undefined
         ) {
+
           bestScore =
             ktBestScores[key];
         }
 
+
         if (
-          attempts === undefined &&
+          attempts ===
+            undefined &&
           ktAttempts[key] !==
             undefined
         ) {
+
           attempts =
             ktAttempts[key];
         }
       }
 
-      /*
-        Ada rekod = bina practiceMarks.
-      */
+
+      /* ===================================================
+         BINA PRACTICE MARK
+      =================================================== */
 
       if (
-        latestScore !== undefined ||
-        bestScore !== undefined ||
-        attempts !== undefined
+        latestScore !==
+          undefined ||
+        bestScore !==
+          undefined ||
+        attempts !==
+          undefined
       ) {
+
         const finalLatest =
           Number(
             latestScore ??
             bestScore ??
             0
           );
+
 
         const finalBest =
           Number(
@@ -443,9 +725,11 @@ window.FirebaseSync = {
             0
           );
 
+
         practiceMarks[
           `KT${padded}`
         ] = {
+
           latestScore:
             finalLatest,
 
@@ -467,20 +751,23 @@ window.FirebaseSync = {
       }
     }
 
-    /*
-      Jika rekod Firebase sudah mempunyai
-      practiceMarks versi baru, gabungkan
-      sekali dan utamakan rekod baru.
-    */
+
+    /* =====================================================
+       Jika Firebase sudah mempunyai practiceMarks
+       versi baharu, utamakan rekod tersebut.
+    ===================================================== */
 
     const existingPractice =
       student.practiceMarks &&
       typeof student.practiceMarks ===
         "object"
+
         ? student.practiceMarks
         : {};
 
+
     return {
+
       ...student,
 
       id,
@@ -494,79 +781,113 @@ window.FirebaseSync = {
         student.class ||
         "",
 
+
       practiceMarks: {
+
         ...practiceMarks,
+
         ...existingPractice
       },
 
+
       officialMarks:
-        student.officialMarks || {},
+        student.officialMarks ||
+        {},
+
 
       progress:
         Number(
           student.progress || 0
         ),
 
+
       unlockedKP:
         Number(
           student.unlockedKP || 1
         ),
 
+
       updatedAt:
-        student.updatedAt || null
+        student.updatedAt ||
+        null
     };
   },
 
-  /* =========================================================
+
+  /* =======================================================
      LISTENER MOD PEGAWAI PENILAI
 
-     PEMBETULAN UTAMA:
-     Baca terus daripada:
+     *** PEMBETULAN PENTING ***
+
+     MOD PEGAWAI MEMBACA TERUS:
+
      C05/students
 
-     BUKAN hanya:
-     C05/teacher/students
-  ========================================================= */
+     BUKAN:
 
-  listenTeacherStudents(callback) {
+     C05/teacher/students
+
+     Ini memastikan semua komputer,
+     telefon dan tablet membaca senarai
+     pelatih daripada sumber yang sama.
+  ======================================================= */
+
+  listenTeacherStudents(
+    callback
+  ) {
+
     if (
       !this.enabled ||
-      typeof callback !== "function"
+      typeof callback !==
+        "function"
     ) {
+
       return null;
     }
+
 
     const studentsRef =
       this.dbFunctions.ref(
         this.database,
+
         "C05/students"
       );
 
+
     const unsubscribe =
       this.dbFunctions.onValue(
+
         studentsRef,
+
         (snapshot) => {
+
           const rawStudents =
-            snapshot.val() || {};
+            snapshot.val() ||
+            {};
+
 
           const convertedStudents =
             {};
+
 
           Object.entries(
             rawStudents
           ).forEach(
             ([rawId, student]) => {
+
               const converted =
                 this.convertStudentForTeacher(
                   student,
                   rawId
                 );
 
+
               convertedStudents[
                 converted.id
               ] = converted;
             }
           );
+
 
           console.log(
             "Firebase → Mod Pegawai Penilai:",
@@ -576,19 +897,25 @@ window.FirebaseSync = {
             "pelatih diterima."
           );
 
+
           callback(
             convertedStudents
           );
         },
+
+
         (error) => {
+
           console.error(
             "Firebase: gagal membaca data pelatih.",
             error
           );
 
+
           callback({});
         }
       );
+
 
     return unsubscribe;
   }
